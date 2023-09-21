@@ -1,0 +1,2 @@
+<?php
+readfile('https://getcomposer.org/installer');
