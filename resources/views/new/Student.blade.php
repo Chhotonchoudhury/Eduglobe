@@ -165,7 +165,7 @@
                             </table>
                           </td>
                           <td width="1%"><a class="dropdown-item neweditpan"
-                              href="{{ route('view.stu', $row->id) }}" style="float:left;"><i class="fa fa-eye"
+                              href="#" style="float:left;"><i class="fa fa-eye"
                                 aria-hidden="true"></i></a></td>
                           <td width="1%">
                             <a class="dropdown-item neweditpan" onclick="loadpop2('Edit Student',this,'600px')"
