@@ -92,6 +92,8 @@
     <!-- Page Level Plugin/Script Ends -->
 
     <script src="{{ asset('assets/plugins/apex/apexcharts.min.js') }}"></script>
+
+
     
 
 

@@ -29,7 +29,7 @@ class CourseController extends Controller
         $courses = Course::orderby('id','desc')->get();
         $university = University::all();
         $category = Category::all();
-        return view ('Course' , compact('courses','university','category','page_main','page','cp'));
+        return view ('new.Course' , compact('courses','university','category','page_main','page','cp'));
     }
 
 

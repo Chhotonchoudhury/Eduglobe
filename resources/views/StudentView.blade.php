@@ -634,23 +634,23 @@
 
 
 
-      <!-- this is modal for notification --->
-      <div class="modal fade" id="notify" tabindex="-1" role="dialog" aria-labelledby="#updateModalFullscreenLabel" aria-hidden="true" style="display: none;">
-            <div class="modal-dialog modal-lg">
-                 <div class="modal-content">
-                        <div class="modal-body">
-            <form  method="POST" action="{{ route('notify.set') }}" >
-            @csrf
-                <input type="hidden" name="id" value="{{ $student->id }}">        
-                <h6 class="font-12 mb-3">Set Notification</h6>
-                <textarea class="form-control" name="msg" required=""></textarea><br>
-                <button class="btn btn-outline-primary" type="submit">Set Notification</button>
-            </form>
+            <!-- this is modal for notification --->
+            <div class="modal fade" id="notify" tabindex="-1" role="dialog" aria-labelledby="#updateModalFullscreenLabel" aria-hidden="true" style="display: none;">
+                  <div class="modal-dialog modal-lg">
+                      <div class="modal-content">
+                              <div class="modal-body">
+                  <form  method="POST" action="{{ route('notify.set') }}" >
+                  @csrf
+                      <input type="hidden" name="id" value="{{ $student->id }}">        
+                      <h6 class="font-12 mb-3">Set Notification</h6>
+                      <textarea class="form-control" name="msg" required=""></textarea><br>
+                      <button class="btn btn-outline-primary" type="submit">Set Notification</button>
+                  </form>
 
-      </div></div></div></div>
-      <!-- end of the section --->
+            </div></div></div></div>
+            <!-- end of the section --->
 
-      <!-- this modal for dailog box to provide student couse-->
+              <!-- this modal for dailog box to provide student couse-->
               <!--  Modal content for updating the records data table -->
               <div class="modal fade bs-example-modal-xl" id="exampleModalFullscreenLabel" tabindex="-1" role="dialog" aria-labelledby="#exampleModalFullscreenLabel" aria-hidden="true" style="display: none;">
                         <div class="modal-dialog modal-xl">
@@ -984,20 +984,20 @@ $('#searchC').keyup(function() {
               
                 // ajax request
 
-                $.ajax({
-                    type: "POST",
-                    url: "{{ route('add_course.stu') }}",
-                    data:{student:stu_id,course:id},
-                    dataType: "json",
-                    success: function (response) {
-                      if(response.status == 200){
-                        fetchCourse();
-                        Swal.fire('Done', response.message, 'success');
+                // $.ajax({
+                //     type: "POST",
+                //     url: "{{ route('add_course.stu') }}",
+                //     data:{student:stu_id,course:id},
+                //     dataType: "json",
+                //     success: function (response) {
+                //       if(response.status == 200){
+                //         fetchCourse();
+                //         Swal.fire('Done', response.message, 'success');
                                 
-                      }
-                      //console.log(response.data);
-                    }
-                });
+                //       }
+                //       //console.log(response.data);
+                //     }
+                // });
            });
           
     // this function is for fetching the recors

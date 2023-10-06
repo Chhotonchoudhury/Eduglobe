@@ -346,12 +346,14 @@ $('#tblSearch').on('input', function() {
   // Call the DataTables search() method to perform the search
   myDataTable.search(searchTerm).draw();
 });
+
 //table.buttons().container().appendTo('#list_wrapper .col-md-6:eq(0)');
 
 // var table1 = $('#trashed').DataTable({
 //     buttons: ['copy', 'excel', 'pdf','colvis']
 // });
 // table1.buttons().container().appendTo('#trashed_wrapper .col-md-6:eq(0)');
+
 });
 
 </script>

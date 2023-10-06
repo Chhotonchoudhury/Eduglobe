@@ -10,6 +10,12 @@ class Status extends Model
     use HasFactory;
     public $guarded = [];
 
+    public function students()
+    {
+        return $this->hasMany(Student::class, 'status_id');
+    }
+
+
     public function user(){
         return $this->belongsTo(User::class , 'entry_id');
     }

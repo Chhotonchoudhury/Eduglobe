@@ -19,7 +19,7 @@ class AuthenticatedSessionController extends Controller
     public function create()
     {
         $cp = Companyprofile::find(1);
-        return view('auth.login',compact('cp'));
+        return view('new.auth.login',compact('cp'));
     }
 
     /**

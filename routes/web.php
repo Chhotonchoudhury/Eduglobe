@@ -224,13 +224,17 @@ Route::middleware(['auth'])->controller(DegreeController::class)->group(function
 
 Route::middleware(['auth'])->controller(UniversityController::class)->group(function () {
     //add university add
-    Route::get('/university-add', 'add')->name('uni.add');
+    Route::get('/university-add/{data?}', 'add')->name('uni.add');
     Route::post('/university-store', 'store')->name('store.uni');
     Route::get('/university-list', 'list')->name('list.uni');
     Route::get('/university-view/{id}','view')->name('view.uni');
-    Route::get('/university-edite/{id}','edite')->name('edite.uni');
-    Route::post('/university-update', 'update')->name('update.uni');
+    // Route::get('/university-edite/{id}','edite')->name('edite.uni');
+    // Route::post('/university-update', 'update')->name('update.uni');
     Route::get('/university-delete/{id}', 'delete_uni')->name('delete.uni');
+
+    //feth uni record for get the data 
+    Route::get('/uni-record/{id}', 'fetchRecord')->name('fetch.uni.record');
+
 });
 
 
@@ -291,7 +295,7 @@ Route::middleware(['auth'])->controller(CategoryController::class)->group(functi
 Route::middleware(['auth'])->controller(StudentController::class)->group(function () {
     
     //this section is for going to the normal list for any sudent registration
-    Route::get('/enquiry-student', 'enq_list')->name('enq.stu');
+    Route::get('/enquiry-student/{id?}', 'enq_list')->name('enq.stu');
     //this is for student verify update 
     Route::get('/student-verify/{sid}/{id}','stu_verify')->name('verify.stu.enq');
     //this is for student enquery refer link
@@ -311,6 +315,11 @@ Route::middleware(['auth'])->controller(StudentController::class)->group(functio
     Route::get('/student-delete/{id}', 'delete_student')->name('delete.stu');
     
     Route::get('/student-view/{id}','stu_view')->name('view.stu');
+    
+    //student qualification route
+    Route::post('/student-qualification-store', 'quaifi_store')->name('qualification.stu');
+    Route::get('/student-qualification-delete/{id}', 'quaifi_delete')->name('qualification.delete');
+    //end of the route
 
     Route::post('/student-add-course','course_add')->name('add_course.stu');
     Route::post('/student-remove-course','course_remove')->name('remove_course.stu');

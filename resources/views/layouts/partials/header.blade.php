@@ -67,7 +67,6 @@
     <!-- Page Level Plugin/Style Starts -->
     <link href="{{ asset('assets/plugins/apex/apexcharts.css') }}" rel="stylesheet" type="text/css">
 
-    
 
     <style>
     .my-class .bar {

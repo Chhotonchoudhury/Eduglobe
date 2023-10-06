@@ -23,6 +23,8 @@ use Spatie\Permission\Models\Role;
 use App\Models\Companyprofile;
 use Spatie\Permission\Models\Permission;
 Use Spatie\Permission\Traits\HasRoles;
+use App\Models\Status;
+
 
 class Admincontroller extends Controller
 {
@@ -121,7 +123,46 @@ class Admincontroller extends Controller
         
         //latest enquries
         
-        $enquiryList = Student::where('refer_to', '=', null)->orderBy('id', 'DESC')->take(10)->get();
+        $enquiryList = Student::orderBy('id', 'DESC')->take(10)->get();
+
+        //student payment list 
+        $stupaylist = Student_Payment::orderBy('id', 'DESC')->take(10)->get();
+
+        //student by status
+        // Retrieve all statuses with their associated student counts
+        $statuses = Status::withCount('students')->get();
+
+        // Prepare the data for the chart
+        $chartStatus = $statuses->map(function ($status) {
+            return [
+                'name' => $status->status, // Assuming 'name' is the field representing the status name
+                'value' => $status->students_count,
+            ];
+        }); 
+
+
+        //student registration charts
+        // Get the current year
+        $nowYear = date('Y');
+
+        // Create an array to hold the data for all months of the year
+        $stuChartData = [];
+
+        // Loop through each month of the year and fetch student data for that month
+        for ($month = 1; $month <= 12; $month++) {
+            $monthName = date('M', mktime(0, 0, 0, $month, 1, $nowYear));
+
+            // Fetch student data for the current month
+            $studentCount = Student::whereYear('created_at', $nowYear)
+                ->whereMonth('created_at', $month)
+                ->count();
+
+            // Add data for the current month to the stuChartData array
+            $stuChartData[] = [
+                'country' => $monthName,
+                'visits' => $studentCount,
+            ];
+        }
 
 
         $piechart = DB::select(DB::raw("select count(*) as total_city, country from students group by country"));
@@ -133,7 +174,7 @@ class Admincontroller extends Controller
         
       
 
-        return view('dashboard', compact('page_main','page','cp','uni_total','cor_total','stu_total','pay','commission','stu_payment','s_total','total_user_enq','agentCount','stuffCount','studentChart','enquiryList','topcourse','topuniversity','piearr','total_user_students','total_user_enq_list','total_user_con_enq','total_user_process','user_latest_enq_list','user_latest_process_list')); 
+        return view('new.dashboard', compact('page_main','page','cp','uni_total','cor_total','stu_total','pay','commission','stu_payment','s_total','total_user_enq','agentCount','stuffCount','studentChart','enquiryList','stupaylist','topcourse','topuniversity','piearr','total_user_students','total_user_enq_list','total_user_con_enq','total_user_process','user_latest_enq_list','user_latest_process_list','chartStatus','stuChartData')); 
     }//end method
     
     //student cahrt filter 

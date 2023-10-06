@@ -19,6 +19,7 @@ use App\Models\Companyprofile;
 use App\Models\EMGS_Status;
 use App\Models\StudentPaymentStatus;
 use App\Models\User;
+use App\Models\Qualification;
 use ZipArchive;
 use File;
 
@@ -64,7 +65,7 @@ class StudentController extends Controller
         // }
 
 
-        return view ('Student' , compact('students','archive_stu','cp','page_main','page'), ['request' => $request]);
+        return view ('new.Student' , compact('students','archive_stu','cp','page_main','page'), ['request' => $request]);
     }
 
     public function store(Request $request){
@@ -207,24 +208,52 @@ class StudentController extends Controller
      
      //THis section is for normal student enquery
      
-     public function enq_list(){
+    public function enq_list(Request $request, $id = 1){
         $page_main = "Student";
         $page = "Enquiry";
         $cp = Companyprofile::first();
+        $idFromUrl = $request->route('id', 1);
+        // $students;
         
         if(Auth::user()->hasRole('Admin')){
             //this is for rendomly all queris for admin
-           $users = User::orderBy('id','desc')->get();
-           $students = Student::whereNotIn('verify', [1])->orderBy('id','desc')->get();
-        }else{
-            //this is for user generated queries that spacefiy a perticular user
-           $users = "";
-           $students = Student::where('entry_id' , '=' , Auth::user()->id)->whereNotIn('verify', [1])->orderBy('id','desc')->get(); 
-        }
+            $users = User::orderBy('id','desc')->get();
+            //this is other student info
+            $penstudent= Student::whereNotIn('verify', [1])->orderBy('id','desc')->get();
+            $verifystu = Student::whereNotNull('verified_by')->orderBy('id', 'desc')->get();
+            $notverifystu = Student::whereNull('verified_by')->orderBy('id', 'desc')->get();
+            $referstu = Student::whereNotNull('refer_to')->orderBy('id', 'desc')->get();
+            $coursestu = Student::whereNotNull('course_id')->orderBy('id', 'desc')->get();
+            $prostu = Student::whereNotIn('process_status', [0])->orderBy('id', 'desc')->get();
 
-        return view ('EnqueryStudent' , compact('students','users','cp','page_main','page'));
+            if($idFromUrl == 1){
+                $students = $penstudent;
+            }elseif($idFromUrl == 2){
+                $students = $verifystu;
+            }elseif($idFromUrl == 3){
+                $students = $notverifystu;
+            }elseif($idFromUrl == 4){
+                $students = $referstu;
+            }elseif($idFromUrl == 5){
+                $students = $coursestu;
+            }elseif($idFromUrl == 6){
+                $students = $prostu;
+            }
+
+            // die($students);
+
+
+            }else{
+                //this is for user generated queries that spacefiy a perticular user
+             $users = "";
+             $students = Student::where('entry_id' , '=' , Auth::user()->id)->whereNotIn('verify', [1])->orderBy('id','desc')->get(); 
+            }
+
          
-     }
+             
+        return view ('new.EnqueryStudent' , compact('idFromUrl','students','penstudent','verifystu','notverifystu','referstu','coursestu','prostu','users','cp','page_main','page'));
+         
+    }
     //this is the student enquiry filter 
     public function enq_filter(Request $request){
         
@@ -356,7 +385,10 @@ class StudentController extends Controller
         //die($student_payments);
         $student_doc = StudentDoc::where("student_id", "=", $id)->get();
 
-        
+        //qualification
+        $student_qua = Qualification::where("student_id", "=", $id)->get();
+
+        $courses_suggested = Student::find($id)->courses;
         //payment category
         $paytype = PaymentCategory::all();
         //end of the payment category
@@ -408,8 +440,33 @@ class StudentController extends Controller
    
         //End of the payment status section
         
-        return view('StudentView' , compact('student','course','cp','student_payments','payment_sum','commission_sum','student_pay_sum','stu_payment','student_commission','page_main','page','student_doc','paytype','due_state','emg_state','payment_state'));
+        return view('new.StudentView' , compact('student','course','cp','student_payments','payment_sum','commission_sum','student_pay_sum','stu_payment','student_commission','page_main','page','student_doc','paytype','due_state','emg_state','payment_state','student_qua','courses_suggested'));
     }
+
+    //this is the qualification section
+    public function quaifi_store(Request $request){
+
+        $data= new Qualification;
+
+        $data->student_id = $request->id;
+        $data->qualification = $request->qualification;
+        $data->year = $request->year;
+        $data->cgpa = $request->cgpa;
+        $data->board = $request->board;
+        $data->entry_id = Auth::user()->id;
+        $data->save();
+        
+        return back();
+
+    }
+    //end of the section
+    //delete the qualification 
+    public function quaifi_delete(Request $request , $id){
+        Qualification::where("id", "=", $id)->delete();
+        return back();
+    }
+
+    //end of the qualification
 
     //THIS SECTION IS FOR STUDENT SEARCH SECTION 
     public function course_search(Request $request){
@@ -423,37 +480,26 @@ class StudentController extends Controller
 
     //THIS SECTION IS FOR PROVIDE COURSE TO STUDENT
     public function course_add(Request $request){
-        $s_id = $_POST['student'];
-        $c_id = $_POST['course'];
+        $s_id = $request->input('student');
+        $c_id = $request->input('course');
+        // Retrieve the display_id from the form
+
         $student = Student::find($s_id);
         $student->courses()->attach($c_id);
-        //return redirect()->route('stu')->with('s_success','Student Couse Addedd successfully !');
-        return response()->json([
-            'status' =>200,
-            'message' => 'course added successfully !',
-        ]);
-        
+
+        // Now you can use $display_id for any further processing or return it if needed
+        // ...
+        return back();
     }
 
     public function course_remove(Request $request){
-        $s_id = $_POST['student'];
-        $c_id = $_POST['course'];
+        $s_id = $request->input('student');
+        $c_id = $request->input('course');
         $student = Student::find($s_id);
-        if($student->process_status == 0){
-            $student->courses()->detach($c_id);
-            //return redirect()->route('stu')->with('s_success','Student Couse Addedd successfully !');
-            return response()->json([
-                'status' =>200,
-                'message' => 'course remove successfully !',
-            ]);
-        }else{
-            return response()->json([
-                'status' =>400,
-                'message' => 'You Can not remove this course becouse course in processing !',
-            ]);
-        }
-      
-        
+       
+        $student->courses()->detach($c_id);
+        //return redirect()->route('stu')->with('s_success','Student Couse Addedd successfully !');
+        return back();
     }
 
     //THIS IS ANOTHER FUNCTION FOR STUDENT COURSE VIEW SECTION 

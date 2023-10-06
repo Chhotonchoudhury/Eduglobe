@@ -20,72 +20,181 @@ class UniversityController extends Controller
     //
 
         //showing the forms for add data
-        public function add(){
+        public function add(Request $request, $search = ''){
             $page_main = "University";
             $page = "Add New University";
             $cp = Companyprofile::find(1);
-            $unvs = University::orderby('id','desc')->get();
-            return view('UniAdd', compact('cp','page','unvs','page_main')); 
+
+            $query = University::orderBy('id', 'desc');
+
+            $search = $request->input('search', '');
+            // Check if a search parameter is provided
+            if (!empty($search)) {
+                // Perform a search based on your criteria
+                $query->where('name', 'LIKE', "%$search%")
+                    ->orWhere('ar_name', 'LIKE', "%$search%")
+                    ->orWhere('campus_name', 'LIKE', "%$search%")
+                    ->orWhere('Unumber', 'LIKE', "%$search%")
+                    ->orWhere('email', 'LIKE', "%$search%")
+                    ->orWhere('ex_number', 'LIKE', "%$search%")
+                    ->orWhere('ex_email', 'LIKE', "%$search%")
+                    ->orWhere('address', 'LIKE', "%$search%")
+                    ->orWhere('remarks', 'LIKE', "%$search%");
+            }
+        
+            $unvs = $query->get();
+   
+            return view('new.UniAdd', compact('cp','page','unvs','page_main')); 
         }//end method
     
         //store university data
         public function store(Request $request){
+
+            // dd($request);
+            $recordId = $request->input('editId');
+
+            if ($recordId) {
+                //update  code
+
+                $request->validate([
+                    'name' => ['required'],
+                    // 'arabic_name' => ['required'],
+                    'campus' => ['required'],
+                    'u_number' => ['required'],
+                    'email' => ['required'],
+                    'ex_number' => ['required'],
+                    'ex_email' => ['required'],
+                    'address' => ['required'],
+                    'remarks' => ['required'],
+
+                    // 'arabic_address' => ['required'],
+                    // 'arabic_remarks' => ['required'],
+
+                    'logo' => 'nullable|mimes:jpg,png,jpeg|max:2048',
+                    'photo' => 'nullable|mimes:jpg,png,jpeg|max:2048',
+                ]);
+
+                $data = University::find($recordId);
+
+                $data->name = $request->name;
+                $data->ar_name = $request->arabic_name;
+                $data->campus_name = $request->campus;
+                $data->email = $request->email;
+                $data->Unumber = $request->u_number;
+                $data->ex_number = $request->ex_number;
+                $data->ex_email = $request->ex_email;
+                $data->address = $request->address;
+                $data->remarks = $request->remarks;
+
+                // $data->ar_address = $request->arabic_address;
+                // $data->ar_remarks = $request->arabic_remarks;
+
+
+                //Logo image update 
+                if($request->file('logo')){
+                    $request->validate([ 'logo' => 'required|mimes:jpg,png,jpeg|max:2048',]);
+                    //die(public_path('uploads/'.$data->logo));
+                    $file = $request->file('logo');
+                    if($data->logo){
+                        if(file_exists(public_path('uploads/'.$data->logo))){
+                            unlink(public_path('uploads/'.$data->logo));
+                        }
+                        
+                    }
+        
+                    $filename = date('YmdHi').$file->getClientOriginalName();
+                    $file->move(public_path('uploads'),$filename);
+                    $data['logo'] = $filename;
+                }
+
+                //photo image update 
+                if($request->file('photo')){
+                    $request->validate([ 'photo' => 'required|mimes:jpg,png,jpeg|max:2048',]);
+
+                    $file = $request->file('photo');
+                    if($data->photo){
+                        if(file_exists(public_path('uploads/'.$data->photo))){
+                            unlink(public_path('uploads/'.$data->photo));
+                        }
+                    }
+        
+                    $filename = date('YmdHi').$file->getClientOriginalName();
+                    $file->move(public_path('uploads'),$filename);
+                    $data['photo'] = $filename;
+                }
+
+                $data->save();
+                return back()->with('s_success','University Details updated successfully !');
+
+                   //update the end  
+
+            }else{
+                //insert hole code 
+                // inputs validation validation 
+                $request->validate([
+                    'name' => ['required'],
+                    // 'arabic_name' => ['required'],
+                    'campus' => ['required'],
+                    'u_number' => ['required'],
+                    'email' => ['required'],
+                    'ex_number' => ['required'],
+                    'ex_email' => ['required'],
+                    'address' => ['required'],
+                    'remarks' => ['required'],
+
+                    // 'arabic_address' => ['required'],
+                    // 'arabic_remarks' => ['required'],
+
+                    'logo' => 'required|mimes:jpg,png,jpeg|max:2048',
+                    'photo' => 'required|mimes:jpg,png,jpeg|max:2048',
+                ]);
             
-            // inputs validation validation 
-            $request->validate([
-                'name' => ['required'],
-                'email' => ['required'],
-                'u_number' => ['required'],
-                'ex_number' => ['required'],
-                'ex_email' => ['required'],
-                'address' => ['required'],
-                'remarks' => ['required'],
+                //logo upload 
+                $Logo = time().'_'.$request->logo->getClientOriginalName().'.'.$request->logo->extension();
+                $request->logo->move(public_path('uploads'),$Logo);
 
-                'arabic_name' => ['required'],
-                'arabic_address' => ['required'],
-                'arabic_remarks' => ['required'],
+                //Photo validation & upload 
+                if($request->photo != ''){
+                $request->validate([ 'photo' => 'required|mimes:jpg,png,jpeg|max:2048',]);
+                $Photo = time().'_'.$request->photo->getClientOriginalName().'.'.$request->photo->extension();
+                $request->photo->move(public_path('uploads'),$Photo);
+                }else{ $Photo = ''; }  
 
 
-                'logo' => 'required|mimes:jpg,png,jpeg|max:2048',
-                'photo' => 'required|mimes:jpg,png,jpeg|max:2048',
-            ]);
-            //die($request);
+                //data insertion 
+                University::create([
+                    'name' => $request->name,
+                    'ar_name' => $request->arabic_name,
+                    'campus_name' => $request->campus,
+                    'email' => $request->email,
+                    'Unumber' => $request->u_number,
+                    'logo' => $Logo,
+                    'ex_number' => $request->ex_number,
+                    'ex_email' => $request->ex_email,
+                    'address' => $request->address,
+                    'remarks' => $request->remarks,
 
-            //logo upload 
-             $Logo = time().'_'.$request->logo->getClientOriginalName().'.'.$request->logo->extension();
-             $request->logo->move(public_path('uploads'),$Logo);
-             
-             
+                    // 'ar_address' => $request->arabic_address,
+                    // 'ar_remarks' => $request->arabic_remarks,
 
-            //Photo validation & upload 
-            if($request->photo != ''){
-             $request->validate([ 'photo' => 'required|mimes:jpg,png,jpeg|max:2048',]);
-             $Photo = time().'_'.$request->photo->getClientOriginalName().'.'.$request->photo->extension();
-             $request->photo->move(public_path('uploads'),$Photo);
-             }else{ $Photo = ''; }  
+                    'photo' => $Photo,
+                ]);
 
-             
+                return back()->with('s_success','University added successfully !');
 
-            //data insertion 
-            University::create([
-                'name' => $request->name,
-                'ar_name' => $request->arabic_name,
-                'email' => $request->email,
-                'Unumber' => $request->u_number,
-                'logo' => $Logo,
-                'ex_number' => $request->ex_number,
-                'ex_email' => $request->ex_email,
-                'address' => $request->address,
-                'remarks' => $request->remarks,
-
-                'ar_address' => $request->arabic_address,
-                'ar_remarks' => $request->arabic_remarks,
-
-                'photo' => $Photo,
-            ]);
-
-            return back()->with('s_success','University added successfully !');
+            }
         }//end method
+
+
+        //fetch record 
+        public function fetchRecord($id){
+
+            $record = University::find($id);
+
+            return response()->json(['success' => true, 'data' => $record]);
+        }
+
+        //end of the record 
 
         //this methods is for show the list of university
         // public function list(){

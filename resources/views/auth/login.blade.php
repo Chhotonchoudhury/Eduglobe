@@ -82,7 +82,7 @@
                         <i class="las la-lock"></i>
                     </div>
                     <div class="login-two-inputs  mt-4 check">
-                        <div class="box">
+                          <div class="box">
                             <input id="one" type="checkbox" name="remember">
                             <span class="check"></span>
                             <label for="one">Remember me</label>
