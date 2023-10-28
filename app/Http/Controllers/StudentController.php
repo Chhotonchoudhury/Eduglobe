@@ -76,12 +76,15 @@ class StudentController extends Controller
          $request->validate([
             'name' => 'required',
             'email' => 'email|unique:students',
-            'phone' => 'required|unique:students',
+            'dob' => 'required',
             'country' => 'required',
+            'mobile' => 'required|unique:students,phone',
+            'city' => 'required',
+            'address' => 'required',
             'status' => 'required',
-            'age' => 'required',
-            // 'photo' => 'required|mimes:jpg,png,jpeg|max:2048',
+            // 'age' => 'required',
             'password' => 'required|same:confirm_password|min:4',
+            'photo' => 'nullable|mimes:jpg,png,jpeg|max:2048',
         ]);
         //die($request);
          
@@ -98,18 +101,22 @@ class StudentController extends Controller
         //data insertion 
         Student::create([
             'name' => $request->name,
+            'email' => $request->email,
+            'dob' => $request->dob,
             'country' => $request->country,
             'country_code' => $request->pre,
-            'phone' => preg_replace('~^[0\D]++|\D++~', '', $request->phone),
-            'email' => $request->email,
-            'age' => $request->age,
+            'phone' => preg_replace('~^[0\D]++|\D++~', '', $request->mobile),
+            'passport_no' => $request->passport,
+            'city' => $request->city,
+            'address' => $request->address,
             'entry_id' => Auth::user()->id,
             'active_status' => $request->status,
             'photo' => $Photo,
             'password' => Hash::make($request->password),
+            'pass_text' => $request->password,
         ]);
 
-        Mail::to($request->email)->send(new WelcomeEmail($data));
+        // Mail::to($request->email)->send(new WelcomeEmail($data));
 
         return back()->with('s_success','Student Enquiry created successfully !');
     }

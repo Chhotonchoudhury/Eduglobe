@@ -272,8 +272,8 @@
 
                                             <!--------- ----------->
                                             <div class="col-md-3 float-end p-0">
-                                              <form method="post" action="{{ route('verify.stu') }}">
-                                                      @csrf
+                                                  <form method="post" action="{{ route('verify.stu') }}">
+                                                   @csrf
                                                     <input type="hidden" name="student_id" value="{{ $row->id }}">
                                                     <div class="d-flex">
                                                       <select class="form-control mt-4 ml-0" required="" name="users" style=" font-size: 14px; padding: 0.25rem 0.5rem;height: 35px;">

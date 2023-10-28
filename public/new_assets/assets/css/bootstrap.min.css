@@ -4248,7 +4248,7 @@ input[type=submit].btn-block {
     }
 }
 
-.nav {
+/* .nav {
     display: -ms-flexbox;
     display: flex;
     -ms-flex-wrap: wrap;
@@ -4256,7 +4256,7 @@ input[type=submit].btn-block {
     padding-left: 0;
     margin-bottom: 0;
     list-style: none
-}
+} */
 
 .nav-link {
     display: block;

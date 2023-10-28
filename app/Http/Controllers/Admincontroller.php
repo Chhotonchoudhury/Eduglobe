@@ -61,19 +61,19 @@ class Admincontroller extends Controller
         $user_enq = Student::where('refer_to', '=', null)->get(); 
         $total_user_enq = $user_enq->count();
         
-        //total agent use/
-        $agentrole = Role::where('name', 'agent')->first();
-        // Get all users with the desired role
-        $agentCount = User::whereHas('roles', function($query) use ($agentrole) {
-                            $query->where('role_id', $agentrole->id);
-                        })->count();
+        // //total agent use/
+        // $agentrole = Role::where('name', 'agent')->first();
+        // // Get all users with the desired role
+        // $agentCount = User::whereHas('roles', function($query) use ($agentrole) {
+        //                     $query->where('role_id', $agentrole->id);
+        //                 })->count();
                         
-        //total stuff use/
-        $stuffrole = Role::where('name', 'stuff')->first();
-        // Get all users with the desired role
-        $stuffCount = User::whereHas('roles', function($query) use ($stuffrole) {
-                            $query->where('role_id', $stuffrole->id);
-                        })->count();
+        // //total stuff use/
+        // $stuffrole = Role::where('name', 'stuff')->first();
+        // // Get all users with the desired role
+        // $stuffCount = User::whereHas('roles', function($query) use ($stuffrole) {
+        //                     $query->where('role_id', $stuffrole->id);
+        //                 })->count();
         
         //This is the student registration chart
         
@@ -174,7 +174,7 @@ class Admincontroller extends Controller
         
       
 
-        return view('new.dashboard', compact('page_main','page','cp','uni_total','cor_total','stu_total','pay','commission','stu_payment','s_total','total_user_enq','agentCount','stuffCount','studentChart','enquiryList','stupaylist','topcourse','topuniversity','piearr','total_user_students','total_user_enq_list','total_user_con_enq','total_user_process','user_latest_enq_list','user_latest_process_list','chartStatus','stuChartData')); 
+        return view('new.dashboard', compact('page_main','page','cp','uni_total','cor_total','stu_total','pay','commission','stu_payment','s_total','total_user_enq','studentChart','enquiryList','stupaylist','topcourse','topuniversity','piearr','total_user_students','total_user_enq_list','total_user_con_enq','total_user_process','user_latest_enq_list','user_latest_process_list','chartStatus','stuChartData')); 
     }//end method
     
     //student cahrt filter 

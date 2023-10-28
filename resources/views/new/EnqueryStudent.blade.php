@@ -133,6 +133,23 @@
     <div class="main-content">
       <div class="page-content">
           <!---top lare-->  
+
+          <!-- Success Alert -->
+            @if (session('s_success'))
+                <div class="alert alert-success bg-success text-white headersavealert" role="alert">
+                    {{ session('s_success') }}
+                </div>
+                {{ Session::forget('s_success') }}
+            @endif
+
+            <!-- Warning Alert -->
+            @if (session('warning'))
+                <div class="alert alert-danger bg-danger text-white headerdangeralert" role="alert">
+                    {{ session('warning') }}
+                </div>
+                {{ Session::forget('warning') }} 
+            @endif
+
         <div class="newboxheading">
           <div class="newhead">Enquires
             <div class="newoptionmenu">
@@ -559,19 +576,23 @@
 
                               <div class="btn-group" role="group" aria-label="Option">
 
+                              <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
+                                O
+                            </button>
+
+                              @if($row->verified_by == null)
+                                <a class="admin-vrify-confirm"  data-id="{{ route('verify.stu.enq', [$row->id, Auth::user()->id ] ) }}" href="#">
+                                    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#ADvModal">
+                                        <i class="fa fa-check-square-o" aria-hidden="true"></i>
+                                    </button>
+                                </a>
+                              @endif
 
 
                                 <a href="display.html?ga=query&view=1&id=100008"><button type="button"
                                     class="btn btn-secondary"><i class="fa fa-eye" aria-hidden="true"></i></button></a>
 
-
-
-
-
-
-
-
-
+                                
                                 <a target="_blank"
                                   href="https://api.whatsapp.com/send?text=Hi&phone=+916294998402"><button type="button"
                                     class="btn btn-secondary"><i class="fa fa-whatsapp"
@@ -645,23 +666,51 @@
                               </div>
                             </td>
 
-                            <td width="15%" align="left" valign="top" style="padding-right:20px;">
-                              <div style="color:#303030; font-size:12px; margin-bottom:3px;">Assigned to</div>
+                            <td width="15%" align="left" valign="top" style="padding-right: 20px;">
+                                <div style="color: #303030; font-size: 12px; margin-bottom: 3px;">Assigned to</div>
+                                <form method="post" action="{{ route('verify.stu') }}">
+                                    @csrf
+                                <div style="font-size: 12px; display: flex; align-items: center;">
+                                   @if($row->refer_to == null)
+                                      <input type="hidden" name="student_id" value="{{ $row->id }}">
 
+                                      <select 
+                                          class="form-control"
+                                          style="padding: 3px; font-size: 12px; height: 25px; line-height: 15px; color: #000; font-weight: 600;margin-right: 3px;"
+                                          autocomplete="off"  required="" name="users" >
 
+                                          <option value="1">Assign to me</option>
+                                          @foreach ($users as $rows)
+                                              @foreach($rows->roles->pluck('name') as $role)
+                                                  <option value="{{ $rows->id }}">{{ $rows->name }} ({{ $role }} )@if(Auth::user()->id === $rows->id ) My self @endif</option>
+                                              @endforeach
+                                          @endforeach
 
-                               <div style="font-size:12px;"><select id="assignTo100008" name="assignTo100008"
-                                  class="form-control"
-                                  style="padding: 3px; font-size: 12px; height: 25px; line-height: 15px; color: #000; font-weight: 600;"
-                                  autocomplete="off" onchange="changeAssignTo('100008');">
+                                      </select>
+                                     <button type="submit"  class="btn btn-dark text-white" style="padding: 3px; font-size: 12px; height: 25px; line-height: 15px; color: #000; font-weight: 600;"><i class="fa fa-arrow-circle-o-right" style="font-size:18px;" aria-hidden="true"></i></button>
+                                    
+                                   @else
+                                    <div style="font-size:13px; line-height: 16px;">
+                                      
+                                      {{ optional($row->refer_user)->name }}
 
-                                  <option value="1">Assign to me</option>
-
-
-                                  </select>
-                                  
-                              </div>
+                                        @if($row->refer_user && $row->refer_user->roles->isNotEmpty())
+                                            (Roles:
+                                            @foreach ($row->refer_user->roles as $role)
+                                                {{ $role->name }}
+                                                @if (!$loop->last)
+                                                    ,
+                                                @endif
+                                            @endforeach)
+                                        @endif
+                                    
+                                    
+                                    </div>
+                                    @endif
+                                </div>
+                                </form>
                             </td>
+
 
                             <!-- <td width="13%" align="left" valign="top">
                               <div style="font-size:12px; line-height: 16px; margin-bottom:3px;"><span
@@ -950,8 +999,8 @@
 
                 <div class="modal-body" id="popcontent2">
 
-                <form class="custom-validation" action="frmaction.html" target="actoinfrm" novalidate="" method="post" enctype="multipart/form-data">	
- 
+                <form  method="POST" action="{{ route('store.stu') }}" enctype="multipart/form-data">
+                  @csrf
                   <div class="modal-body">			
                   <div class="row">
 
@@ -959,26 +1008,29 @@
                   <div class="col-md-4"> 
                   <div class="form-group">
                   <label for="validationCustom02">Student Name </label>
-                    <input type="text" class="form-control reqfield" required="" name="firstName" value="">
+                    <input type="text" class="form-control reqfield" name="name">
+                    @error('name')<span class="text-danger">{{ $message }}</span>@enderror
                   </div></div>
 
                   <div class="col-md-6"> 
                   <div class="form-group">
                   <label for="validationCustom02">Student Email  </label>
-                    <input type="email" class="form-control reqfield" required="" name="email" value="">
+                    <input type="email" class="form-control reqfield" name="email">
+                    @error('email')<span class="text-danger">{{ $message }}</span>@enderror
                   </div></div>
 
                   <div class="col-md-6"> 
                   <div class="form-group">
                   <label for="validationCustom02">Date of birth  </label>
-                    <input type="date" class="form-control reqfield" required="" name="lastName" value="">
+                    <input type="date" class="form-control reqfield" name="dob">
+                    @error('dob')<span class="text-danger">{{ $message }}</span>@enderror
                   </div></div>
 
                   
                   <div class="col-md-2"> 
                   <div class="form-group">
                   <label for="validationCustom02">Student country </label>
-                        <select class="form-control basic reqfield" id="country"  name="country">
+                        <select class="form-control basic reqfield" id="country"  name="country" require>
                                                   <option  value="">Select Country</option>
                                                   <option data-countryCode="213" value="Algeria">Algeria (+213)</option>
                                                   <option data-countryCode="376" value="Andorra">Andorra (+376)</option>
@@ -1195,6 +1247,7 @@
                                                   <option data-countryCode="260" value="Zambia">Zambia (+260)</option>
                                                   <option data-countryCode="263" value="Zimbabwe">Zimbabwe (+263)</option>
                         </select>
+                        @error('country')<span class="text-danger">{{ $message }}</span>@enderror
                   </div></div>
                   
                     
@@ -1204,68 +1257,69 @@
                   <label for="validationCustom02">Mobile Number </label>
                   <table border="0" cellpadding="0" cellspacing="0" class="groupfields">
                     <tbody><tr>
-                      <td colspan="2"><input type="text" class="form-control" id="code" placeholder="+91" required="" name="mobileCode2" value="" style="    width:67px !important; margin-right:5px;" readonly></td>
-                      <td><input type="text" class="form-control reqfield" required="" name="mobile2" value="" style="    width: 300px !important;"></td>
+                      <td colspan="2"><input type="text" class="form-control" id="code" placeholder="+91" required="" name="pre" value="" style="width:67px !important; margin-right:5px;" readonly></td>
+                      <td><input type="text" class="form-control reqfield" name="mobile"  style="width: 300px !important;"></td>
                       </tr>
                     </tbody>
                   </table>
-                  
+                  @error('mobile')<span class="text-danger">{{ $message }}</span>@enderror
                   </div></div>
 
 
                   <div class="col-md-6"> 
                   <div class="form-group">
                   <label for="validationCustom02">Passport No</label>
-                    <input type="email" class="form-control" required="" name="email2" value="">
+                    <input type="text" class="form-control" name="passport">
+                    @error('passport')<span class="text-danger">{{ $message }}</span>@enderror
                   </div></div>
-
-
-
 
 
                   <div class="col-md-6"> 
                   <div class="form-group">
                   <label for="validationCustom02">City <span class="redmtext">*</span></label>
-                  <input type="text" class="form-control reqfield" onkeyup="getSearchCIty('pickupCitySearch','pickupCity','searchcitylists');" id="pickupCitySearch" required="" name="pickupCitySearch" value="" autocomplete="off"> 
-                    <input name="city" id="pickupCity" type="hidden" value="">
-                    <div style="height:0px; font-size:0px; position:relative;  " id="searchcitylists"></div>
+                  <input type="text" class="form-control reqfield"  name="city"> 
+                    @error('city')<span class="text-danger">{{ $message }}</span>@enderror
                   </div></div>
                     
                     
                     <div class="col-md-6"> 
                   <div class="form-group">
                   <label for="validationCustom02">Contact Address </label>
-                    <input type="text" class="form-control" name="address" value="">
+                    <input type="text" class="form-control" name="address">
+                    @error('address')<span class="text-danger">{{ $message }}</span>@enderror
                   </div></div>
 
                   <div class="col-md-6"> 
                   <div class="form-group">
                   <label for="validationCustom02">Password </label>
-                    <input type="text" class="form-control reqfield" name="address" value="">
+                    <input type="password" class="form-control reqfield" name="password">
+                    @error('password')<span class="text-danger">{{ $message }}</span>@enderror
                   </div></div>
 
                   <div class="col-md-12"> 
                   <div class="form-group">
                   <label for="validationCustom02">Confirm password </label>
-                    <input type="text" class="form-control reqfield" name="address" value="">
+                    <input type="text" class="form-control reqfield" name="confirm_password" >
+                    @error('confirm_password')<span class="text-danger">{{ $message }}</span>@enderror
                   </div></div>
 
                   <div class="col-md-2"> 
                     <div class="form-group">
-                      <label for="validationCustom02">Student country </label>
-                      <select class="form-control basic reqfield"  name="status">
-                                              <option value="">Select Status</option>
-                                              <option value="1">Active</option>
-                                              <option value="0">Deactive</option>
-                                          </select>
+                      <label for="validationCustom02">Active status </label>
+                         <select class="form-control basic reqfield"  name="status">
+                            <option value="">Select Status</option>
+                            <option value="1">Active</option>
+                            <option value="0">Deactive</option>
+                         </select>
+                         @error('status')<span class="text-danger">{{ $message }}</span>@enderror              
                     </div>
                   </div><hr>
 
                   <div class="col-md-12"> 
                       <div class="form-group">
                       <label for="validationCustom02">Student Photo</label>
-                        <input type="file" id="logo"  name="logo"  class="form-control"   >
-                        @error('logo')<span class="text-danger" style="margin-left: 31%;">{{ $message }}</span>@enderror
+                        <input type="file" id="photo"  name="photo"  class="form-control"   >
+                        @error('photo')<span class="text-danger" style="margin-left: 31%;">{{ $message }}</span>@enderror
                       </div></div> 
 
 
@@ -1288,13 +1342,13 @@
                   </script>
                   
                   <div class="modal-footer">  <button type="button"  data-dismiss="modal" aria-label="Close" class="btn btn-secondary btn-lg waves-effect waves-light btn-primary-gray" >Cancel</button>
-                  <input name="Save" type="submit" value="Save" id="savingbutton" class="btn btn-primary" onclick="this.form.submit();">
+                  <input name="Save" type="submit" value="Save" id="savingbutton" class="btn btn-primary" onclick="this.value='Saving...'; " >
                   </div>
 
                   <input name="action" type="hidden" id="action" value="addclient"> 
                   <input name="editId" type="hidden" id="" value="">
                   <input name="qid" type="hidden" id="" value="">
-                  </form>
+                </form>
 
                 </div>
 
@@ -1397,6 +1451,58 @@
             #ui-datepicker-div{z-index:99999999 !important;}
           </style>
        <!--model style end-->
+
+            <!-- verify update model -->
+
+           <div class="modelnew modal right fade" id="ADvModal" tabindex="-1" role="dialog" aria-labelledby="ADvModal" >
+              <div class="modal-dialog" role="document" style="width: 600px; max-width: 600px;">
+                <div class="modal-content">
+
+                  <div class="modal-header">
+                    
+                    <h4 class="modal-title" id="poptitle2">Add new Enquiery</h4>
+                    
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                  </div>
+
+                  <div class="modal-body" id="popcontent2">
+
+                      <div class="modal-body">
+                          <p>Do you really verify this student? This process cannot be undone.</p>
+                      </div>
+                      <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                          <a class="btn btn-success Advid">Verify</a>
+                      </div>
+                  </div>
+              </div>
+           </div>
+
+            <!--End of the modal---->
+
+             <!-- Modal -->
+            <div class="modelnew modal right fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                  <div class="modal-dialog" role="document">
+                      <div class="modal-content">
+                          <div class="modal-header">
+                              <h5 class="modal-title" id="exampleModalLabel">Modal Title</h5>
+                              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                  <span aria-hidden="true">&times;</span>
+                              </button>
+                          </div>
+                          <div class="modal-body">
+                              <p>This is the content of the modal. You can put any information or form here.</p>
+                          </div>
+                          <div class="modal-footer">
+                              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                              <button type="button" class="btn btn-primary">Save Changes</button>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+            </div>
       
     </div>    
     
@@ -1404,6 +1510,47 @@
       $("select[name=country]" ).change(function() {
                $('input#code').val('+'+$(this).find(':selected').attr('data-countryCode'));
             });
+
+
+      @if($errors->has('name') || $errors->has('email') || $errors->has('dob') || $errors->has('country') || $errors->has('mobile')||$errors->has('city')||$errors->has('address')
+          || $errors->has('password')||$errors->has('confirm_password')||$errors->has('status')||$errors->has('photo'))
+        $('#myModal2').modal('show');
+      @endif
+
+      
+      $(document).ready(function() {
+        // Check if the success alert exists
+       
+
+        if ($('.headersavealert').length) {
+            setTimeout(function() {
+                $('.headersavealert').slideUp(500, function() {
+                    $(this).remove(); // Remove the alert from the DOM
+                });
+            }, 3000); // Hide the alert after 3 seconds (adjust as needed)
+        }
+
+        if ($('.headerdangeralert').length) {
+            setTimeout(function() {
+                $('.headerdangeralert').slideUp(500, function() {
+                    $(this).remove(); // Remove the alert from the DOM
+                });
+            }, 3000); // Hide the alert after 3 seconds (adjust as needed)
+        }
+
+      });
+      
+
+      $( document ).ready(function() { 
+        $(".admin-vrify-confirm").click(function(e){
+         
+          e.preventDefault();
+          let id = $(this).attr("data-id");
+          $('#ADvModal').modal('show');
+          $(".Advid").attr("href", id)
+        });
+      });
+
     </script>
     
    </body>

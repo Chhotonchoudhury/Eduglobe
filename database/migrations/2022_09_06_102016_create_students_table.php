@@ -43,6 +43,12 @@ return new class extends Migration
             $table->string('passport_no')->nullable(true);
             $table->text('doc')->nullable(true);
             $table->text('notify')->nullable(true);
+
+            // Add 'dob' (date of birth) field
+            $table->date('dob')->nullable(true);
+            
+            // Add 'address' field
+            $table->text('address')->nullable(true);
             
             $table->rememberToken();
             $table->timestamps();

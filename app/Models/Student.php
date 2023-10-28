@@ -48,7 +48,7 @@ class Student extends Authenticatable implements MustVerifyEmail
     }
     //refered user
      public function refer_user(){
-        return $this->belongsTo(User::class , '	refer_to');
+        return $this->belongsTo(User::class , 'refer_to');
     }
 
     public function courses()
