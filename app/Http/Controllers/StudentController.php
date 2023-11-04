@@ -29,6 +29,7 @@ use App\Models\StudentDoc;
 use App\Mail\StatusUpdateEmail;
 use App\Mail\WelcomeEmail;
 use App\Mail\CustomEmail; 
+use App\Models\Activity;
 
 class StudentController extends Controller
 {
@@ -64,7 +65,7 @@ class StudentController extends Controller
         //     $archive_stu = Student::where('entry_id' , '=' , Auth::user()->type)->whereNotIn('archive_status', [0])->orderby('id','desc')->get();
         // }
 
-
+      
         return view ('new.Student' , compact('students','archive_stu','cp','page_main','page'), ['request' => $request]);
     }
 
@@ -134,67 +135,71 @@ class StudentController extends Controller
 
     //this function is student information update section 
 
-      public function update(Request $request){
-                   //edite validation
+    public function update(Request $request){
+
+        $editId = $request->input('editId');
+        $student = Student::find($editId);
+        
+                // Update inputs validation
+                $request->validate([
+                    'name' => 'required',
+                    'email' => 'email|unique:students,email,' . $student->id,
+                    'dob' => 'required',
+                    'country' => 'required',
+                    'mobile' => 'required|unique:students,phone,' . $student->id,
+                    'city' => 'required',
+                    'address' => 'required',
+                    'status' => 'required',
+                ]);
+
+                // Photo validation & upload
+                $photo = $student->photo;
+                if ($request->hasFile('photo')) {
                     $request->validate([
-                        'name' => ['required'],
-                        'email' => ['required'],
-                        'phone' => ['required'],
-                        'country' => ['required'],
-                        'age' => ['required'],
-                        'status' => ['required'],
-                        // 'password' => 'required|same:confirm_password|min:4',
+                        'photo' => 'mimes:jpg,png,jpeg|max:2048',
                     ]);
 
-                    // if($request->password){
-                    //     $request->validate([
-                            
-                    //     ]);
-                    // }
-        
-                    $data = Student::find($request->id);
-
-                    // if($request->password){
-
-                    //     if (!Hash::check($request->password, $data->password)) {
-                    //         return back()->with('warning','Please check the student password , you enter wrong password');
-                    //     }
-                    //     // $passStu =  Hash::make($request->password);
-                    //     // die($passStu);
-                    //     // if($passStu == $data->password){
-                    //     //     return back()->with('warning','Please check the student password , you enter wrong password');
-                    //     // }
-                    //     //$data->password = Hash::make($request->password);
-                    // }
-        
-                    $data->name = $request->name;
-                    $data->email = $request->email;
-                    $data->country_code = $request->pre;
-                    $data->phone = preg_replace('~^[0\D]++|\D++~', '', $request->phone);
-                    $data->country = $request->country;
-                    $data->age = $request->age;
-                    $data->active_status = $request->status;
-        
-        
-                    //photo image update 
-                    if($request->file('photo')){
-                        $request->validate([ 'photo' => 'required|mimes:jpg,png,jpeg|max:2048',]);
-        
-                        $file = $request->file('photo');
-                        if($data->photo){
-                            if(file_exists(public_path('uploads/'.$data->photo))){
-                            unlink(public_path('uploads/'.$data->photo));
-                            }
-                        }
-            
-                        $filename = date('YmdHi').$file->getClientOriginalName();
-                        $file->move(public_path('uploads'),$filename);
-                        $data['photo'] = $filename;
+                    // Unlink old photo if it exists
+                    if (!empty($photo) && file_exists(public_path('uploads/' . $photo))) {
+                        unlink(public_path('uploads/' . $photo));
                     }
-        
-             $data->save();
-             return redirect()->route('stu')->with('s_success','Student Details updated successfully !');
-          }
+
+                    $photo = time() . '_' . $request->photo->getClientOriginalName() . '.' . $request->photo->extension();
+                    $request->photo->move(public_path('uploads'), $photo);
+                }
+
+                // Password update, only if a new password is provided
+                $password = $student->password;
+                if ($request->password) {
+                    $request->validate([
+                        'password' => 'required|same:confirm_password|min:4',
+                    ]);
+                    $password = Hash::make($request->password);
+                } else {
+                    // If no new password is provided, keep the existing password
+                    $password = $student->password;
+                }
+
+                // Data update
+                $student->update([
+                    'name' => $request->name,
+                    'email' => $request->email,
+                    'dob' => $request->dob,
+                    'country' => $request->country,
+                    'country_code' => $request->pre,
+                    'phone' => preg_replace('~^[0\D]++|\D++~', '', $request->mobile),
+                    'passport_no' => $request->passport,
+                    'city' => $request->city,
+                    'address' => $request->address,
+                    'active_status' => $request->status,
+                    'photo' => $photo,
+                    'password' => $password,
+                    'pass_text' => $request->password ? $request->password : $student->pass_text,
+                ]);
+
+                return back()->with('s_success', 'Student information updated successfully!');
+
+    }
     
       // THIS SECTION IS FOR DELETE THE INFORMATION 
      public function delete_student(Request $request , $id){
@@ -400,6 +405,12 @@ class StudentController extends Controller
         $paytype = PaymentCategory::all();
         //end of the payment category
 
+        //get all activities 
+        $activitiies = Activity::where("student_id", "=", $id)->get();
+
+        $status = Status::orderby('id','asc')->get(); 
+        $emgsstatus = EMGS_Status::orderby('id','asc')->get(); 
+        $paymentstatus = StudentPaymentStatus::orderby('id','asc')->get();
              //This section is for student status figureout in persantage
             
             // Get all available statuses
@@ -447,7 +458,7 @@ class StudentController extends Controller
    
         //End of the payment status section
         
-        return view('new.StudentView' , compact('student','course','cp','student_payments','payment_sum','commission_sum','student_pay_sum','stu_payment','student_commission','page_main','page','student_doc','paytype','due_state','emg_state','payment_state','student_qua','courses_suggested'));
+        return view('new.StudentView' , compact('student','course','cp','student_payments','payment_sum','commission_sum','student_pay_sum','stu_payment','student_commission','page_main','page','student_doc','paytype','due_state','emg_state','payment_state','student_qua','courses_suggested','status','emgsstatus','paymentstatus','activitiies'));
     }
 
     //this is the qualification section
@@ -525,11 +536,10 @@ class StudentController extends Controller
             if(!empty($course->course_id)){
                $course->process_status = 1;
                $course->save();
-               return redirect()->route('view.stu' , $id)->with('s_success','Student go for process successfully !');
+               return back()->with(['s_success'=>'Student go for process successfully !', 'active_tab' => 2]);
              }else{
-                return redirect()->route('view.stu' , $id)->with('info','Student must have select any course !');
-             }
-           
+                return back()->with(['info'=>'Student must have select any course !','active_tab' => 2]);
+             }   
       }
     
     //THIS IS FOR STUDENT APPLICANT PROCESS
@@ -564,13 +574,13 @@ class StudentController extends Controller
         $student->status_id = $request->status;
         $student->save();
         
-        $data = Companyprofile::first();
+        // $data = Companyprofile::first();
         
-        if(!Mail::to($student->email)->send(new StatusUpdateEmail($data))){
-            return back()->with('error','something wrong');
-        }
+        // if(!Mail::to($student->email)->send(new StatusUpdateEmail($data))){
+        //     return back()->with('error','something wrong');
+        // }
         
-        return redirect()->route('applicant.process')->with('s_success','Student status was changed successfully  !');
+        return back()->with([ 's_success' => 'Student status was changed successfully  !', 'active_tab' => 2]);
     }
     
     
@@ -580,20 +590,20 @@ class StudentController extends Controller
             $student->emg_status = $request->status;
             
             $student->save();
-            $data = Companyprofile::first();
-            Mail::to($student->email)->send(new StatusUpdateEmail($data));
-            return redirect()->back()->with('s_success','Student EMGS Status updated successfully  !');
+            // $data = Companyprofile::first();
+            // Mail::to($student->email)->send(new StatusUpdateEmail($data));
+            return back()->with([ 's_success' => 'Student EMGS status was changed successfully  !', 'active_tab' => 2]);
         }
     
     // payment status update 
         public function update_payment(Request $request){
             $student = Student::find($request->student_id);
             $student->payment_status = $request->status;
-            
             $student->save();
-            $data = Companyprofile::first();
+
+            // $data = Companyprofile::first();
             // Mail::to($student->email)->send(new StatusUpdateEmail($data));
-            return redirect()->back()->with('s_success','Student Payment Status updated successfully  !');
+            return back()->with([ 's_success' => 'Student payment status was changed successfully  !', 'active_tab' => 2]);
         }
     
        //Student archive function 
@@ -641,50 +651,85 @@ class StudentController extends Controller
         return response()->download(public_path('documents/'.$fileNm->name));
     }
 
+    //this is the single doucment delete part 
+
+    public function SingleDocDelete(Request $request, $id) {
+        // Find the document by requirement_id
+        $document = StudentDoc::where('requirement_id', $id)->first();
+    
+        if ($document) {
+            // Check if the file exists
+            if (file_exists(public_path('documents/' . $document->name))) {
+                unlink(public_path('documents/' . $document->name));
+            }
+    
+            // Delete the document record
+            $document->delete();
+    
+            return back()->with(["s_success"=>"Document deleted successfully!", 'active_tab' => 4]);
+        } else {
+            return back()->with(["info"=>"Document not found or could not be deleted.",'active_tab' => 4]);
+        }
+    }
+    
     //End of the document download single single
 
+    //this is the activity add section for student 
+
+    public function activity_add(Request $request){
+
+       // Create a new Activity instance
+        $activity = new Activity();
+
+        // Set the fields from the request data
+        $activity->type = $request->input('type');
+        $activity->status = $request->input('status');
+        $activity->description = $request->input('description');
+        $activity->reminder = $request->input('reminder');
+        $activity->reminder_date = $request->input('reminder_date');
+        $activity->reminder_time = $request->input('reminder_time');
+        $activity->student_id = $request->input('student_id');
+         // Check if 'assign_to' exists in the request before setting it
+        if ($request->has('assign_to')) {
+            $activity->assign_to = $request->input('assign_to');
+        }
+
+        // Save the Activity instance to the database
+        $activity->save();
+
+        // Mail::to($request->email)->send(new WelcomeEmail($data));
+
+        return back()->with(['s_success'=>'Activity stored successfully.', 'active_tab' => 5]);
+    }
+
+    //end of the activity section of student 
+
     //this section for download all the zip file    
-    public function docdownload(Request $request , $id){
-        
-        /////
-        $student =  Student::find($id); 
-        $file =  StudentDoc::where('student_id','=',$id)->get(); 
-        // $file=json_decode($student->doc);
-       // dd($file);
-            $imgarr=[];
-            foreach($file as $data){
-
-                $file =  public_path() . '/documents/'.$data->name;
-
-                if(\File::exists(public_path('documents/'.$data->name))){
-                $imgarr[]= public_path('documents/'.$data->name);
-                }
-
-            }
-
+    public function docdownload(Request $request, $id) {
+        $student = Student::find($id);
+        $documents = StudentDoc::where('student_id', $id)->get();
+    
+        if ($documents->isEmpty()) {
+            return back()->with("info", "No documents found for this student.");
+        }
+    
         $zip = new ZipArchive;
-        $fileName = $student->name.'Documents.zip';
-   
-        if ($zip->open(public_path($fileName), ZipArchive::CREATE) === TRUE)
-        {
-        	// Folder files to zip and download
-        	// files folder must be existing to your public folder
-            //$files = File::files(public_path('documents'));
-   			 $files = $imgarr; 
-   			// loop the files result
-            foreach ($files as $key => $value) {
-                $relativeNameInZipFile = basename($value);
-                $zip->addFile($value, $relativeNameInZipFile);
+        $zipFileName = $student->name . 'Documents.zip';
+        
+        if ($zip->open(public_path($zipFileName), ZipArchive::CREATE) === TRUE) {
+            foreach ($documents as $document) {
+                $filePath = public_path('documents/' . $document->name);
+    
+                if (\File::exists($filePath)) {
+                    $zip->addFile($filePath, $document->name);
+                }
             }
-             
             $zip->close();
         }
-    	
-    	// Download the generated zip
-        return response()->download(public_path($fileName));
-        /////
     
+        return response()->download(public_path($zipFileName))->deleteFileAfterSend(true);
     }
+    
     //end of the the download zip file section
      //end of the the download zip file section
     public function stu_pay_slip_download(Request $request , $id){
@@ -716,6 +761,25 @@ class StudentController extends Controller
 
     return response()->json(['message' => 'Email sent successfully']);
   }
+
+
+     //this section is for setting notification
+    public function set_notification(Request $request){
+        $data = Student::find($request->id);
+        $data->notify = $request->msg;
+        $data->save();
+        return back()->with('s_success','Notification set successfully !');
+    }
+    //end of the notification
+
+    //delete notification
+        public function delete_notification(Request $request , $id){
+            $data = Student::find($id);
+            $data->notify ='';
+            $data->save();
+            return back()->with('s_success','Notification deleted successfully !');
+        }
+    //delete notification end
 
 
 }

@@ -13,5 +13,6 @@ return [
     'mimes' => 'The :attribute must be a file of type: :values.',
     'max' => 'The :attribute may not be larger than :max kilobytes (2MB).',
     'confirmed' => 'The :attribute confirmation does not match.',
+    'same' => 'The :attribute must match :other.',
     // Add other custom messages for different rules as needed
 ];

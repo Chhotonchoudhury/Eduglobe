@@ -165,11 +165,6 @@ Route::middleware([ 'auth', 'verified' ])->controller(Admincontroller::class)->g
  Route::get('/direct-search', 'direct_search')->name('direct.search');
  //end of the dashboard search functionality
 
- //student Notification
- Route::post('/set-notification', 'set_notification')->name('notify.set');
- Route::get('/notification-delete/{id}', 'delete_notification')->name('notify.delete');
- //student notification end
-
  //student notification end
  Route::get('/students/{filter}', 'getStudentsData')->name('studentChartFilter');
 
@@ -343,6 +338,11 @@ Route::middleware([ 'auth' ])->controller(StudentController::class)->group(funct
  Route::get('/student-qualification-delete/{id}', 'quaifi_delete')->name('qualification.delete');
  //end of the route
 
+  //student Notification
+  Route::post('/set-notification', 'set_notification')->name('notify.set');
+  Route::get('/notification-delete/{id}', 'delete_notification')->name('notify.delete');
+  //student notification end
+
  Route::post('/student-add-course', 'course_add')->name('add_course.stu');
  Route::post('/student-remove-course', 'course_remove')->name('remove_course.stu');
  Route::get('/student-view/stu-cor-view/{id}', 'course_student_view');
@@ -372,8 +372,14 @@ Route::middleware([ 'auth' ])->controller(StudentController::class)->group(funct
  //student document delete for reupload
  Route::get('/doc-delete/{id}', 'docdelete')->name('doc.delete');
 
+ //single doc delete 
+ Route::get('/single-doc-delete/{id}', 'SingleDocDelete')->name('single.doc.delete');
+
  //single document download
  Route::get('/single-download/{id}', 'SingleDownload')->name('single.doc.download');
+
+ //this is student activity routes 
+ Route::post('/student-activity-add', 'activity_add')->name('stu.activity.add');
 
  //student payment slip download
  Route::get('/student-pay-slip-download/{id}', 'stu_pay_slip_download')->name('stu.pay.slip.download');

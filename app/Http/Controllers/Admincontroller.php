@@ -231,23 +231,7 @@ class Admincontroller extends Controller
     }
     //end of the direct search section
 
-    //this section is for setting notification
-    public function set_notification(Request $request){
-        $data = Student::find($request->id);
-        $data->notify = $request->msg;
-        $data->save();
-        return back()->with('s_success','Notification set successfully !');
-    }
-    //end of the notification
-
-    //delete notification
-        public function delete_notification(Request $request , $id){
-            $data = Student::find($id);
-            $data->notify ='';
-            $data->save();
-            return back()->with('s_success','Notification deleted successfully !');
-        }
-    //delete notification end
+ 
 
     //get user info and show in profile page
     public function profile(){

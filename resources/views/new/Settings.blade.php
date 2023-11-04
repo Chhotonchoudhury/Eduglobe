@@ -1457,7 +1457,7 @@
                 <div class="lmenu">
                   <h5>Settings</h5>
 
-                  <ul class="nav nav-tabs ">
+                  <ul class="nav nav-tabs " style="display: block;">
 
                     <li><a class="nav-link {{ $activeTab === 1 ? 'active show' : '' }} " data-toggle="tab"
                         href="#lead-details-tab2"><i class="fa fa-building-o" aria-hidden="true"></i>

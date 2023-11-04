@@ -221,6 +221,7 @@ h5,
 h6 {
     font-weight: 700;
 }
+
 /* Success alert */
 .headersavealert {
     position: fixed;
@@ -242,8 +243,10 @@ h6 {
 .headerdangeralert {
     position: fixed;
     width: 300px;
-    top: 20px; /* Adjust top position as needed */
-    right: 20px; /* Adjust right position as needed */
+    top: 20px;
+    /* Adjust top position as needed */
+    right: 20px;
+    /* Adjust right position as needed */
     padding: 5px;
     text-align: center;
     font-size: 15px;
@@ -541,9 +544,9 @@ body {
 }
 
 
-::-webkit-scrollbar {
+/* ::-webkit-scrollbar {
     width: 10px;
-}
+} */
 
 ::-webkit-scrollbar-track {
     -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.4);

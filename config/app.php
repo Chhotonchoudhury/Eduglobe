@@ -55,9 +55,9 @@ return [
     */
 
    
-    'url' => env('APP_URL', 'http://edudeve.com'),
+    'url' => env('APP_URL', 'http://localhost/eduglobe'),
 
-    'asset_url' => env('ASSET_URL','http://edudeve.com/public'),
+    'asset_url' => env('ASSET_URL','http://localhost/eduglobe/public'),
 
     /*
     |--------------------------------------------------------------------------
