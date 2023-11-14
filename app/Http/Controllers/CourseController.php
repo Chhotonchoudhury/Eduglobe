@@ -119,12 +119,22 @@ class CourseController extends Controller
     //this section is for requirments entry 
     public function requre_store(Request $request){
         $course = new Course_requirement;
-        $course->course_id = $request->id;
+        $course->course_id = $request->course_id;
         $course->requirment = $request->remarks;
         $course->ar_requirment = $request->arabic_remarks;
         $course->input = $request->input;
         $course->save();
-        return redirect()->route('view.cor', $request->id)->with("s_success", "Course Requirments entry successfully ");
+        return back()->with(["s_success" => "Course Requirments entry successfully", 'active_tab' => 3]);
+    }
+
+
+    //fetch requirement information
+
+    public function fetchReq($id){
+
+        $record = Course_requirement::find($id);
+
+        return response()->json(['success' => true, 'data' => $record]);
     }
 
     //Course requirement view section
@@ -147,7 +157,7 @@ class CourseController extends Controller
         $course->ar_requirment = $request->arabic_remarks;
         $course->input = $request->input;
         $course->save();
-        return back()->with("s_success", "Course Requirments updated successfully ");
+        return back()->with(["s_success" => "Course Requirments updated successfully", 'active_tab' => 3]);
     }
 
     // this function is for delete the requirements
@@ -157,9 +167,9 @@ class CourseController extends Controller
         $doc = StudentDoc::where('requirement_id','=',$id)->first();
         if(empty($doc)){
         $course->delete();
-        return back()->with("s_success", "Course Requirments deleted successfully ");
+        return back()->with(["s_success" => "Course Requirments deleted successfully", 'active_tab' => 3]);
         }else{
-        return back()->with("warning", "Course Requirments Can't be deleted student already uploaded there documents! ");
+        return back()->with(["info" => "Course Requirments Can't be deleted student already uploaded there documents!", 'active_tab' => 3]);
         }
         
     }
@@ -186,7 +196,10 @@ class CourseController extends Controller
         $course = Course::find($id);
         $course_req = Course_requirement::where('course_id','=', $id)->get();
         $pdf = File_pdf::where('course_id','=', $id)->first();
-        return view('CourseView', compact('course','pdf','cp','course_req','page_main','page'));
+        $university = University::all();
+        $category = Category::all();
+
+        return view('new.CourseView', compact('course','pdf','cp','course_req','university','category','page_main','page'));
     }
 
     //update the course 
@@ -283,7 +296,7 @@ class CourseController extends Controller
           $course->entry_id = Auth::user()->id;
 
           $course->save();
-          return back()->with("success", "Course Updated successfully ");
+          return back()->with(["s_success" => "course updated successfully", 'active_tab'=>1]);
 
     }
 
@@ -322,9 +335,26 @@ class CourseController extends Controller
 
     public function course_pdf_store(Request $request){
 
-        
+        $course = File_pdf::where('course_id', '=' , $request->course_id)->first();
+        $pdf = new File_pdf;
 
-        $request->validate([ 'option' => 'required',]);
+        if(empty($course)){
+            //die('This is something !');
+            $pdf->course_id = $request->course_id;
+            $pdf->details = $request->details;
+            $pdf->save();
+        }else{
+            //die('This is the nothing !');
+            $course->details = $request->details;
+            $course->save();
+        }
+
+        return back()->with(["s_success" => "design saved successfully", 'active_tab'=>2]);
+
+    }
+
+    //This section is for course padf uploads
+    public function course_pdf_upload(Request $request){
 
         $course = File_pdf::where('course_id', '=' , $request->course_id)->first();
         $pdf = new File_pdf;
@@ -351,23 +381,38 @@ class CourseController extends Controller
 
         }
 
-        
+        if(empty($course)){
+
+            $pdf->course_id = $request->course_id;	
+            $pdf->save();
+        }else{
+
+            $course->save();
+        }
+
+        return back()->with(["s_success"=>"course pdf uploaded successfully" , 'active_tab'=>2]);
+
+    }
+
+    //this section is for course activation 
+    public function course_pdf_active(Request $request){
+        $request->validate([ 'option' => 'required',]);
+
+        $course = File_pdf::where('course_id', '=' , $request->course_id)->first();
+        $pdf = new File_pdf;
 
         if(empty($course)){
             //die('This is something !');
             $pdf->course_id = $request->course_id;
-            $pdf->details = $request->details;
             $pdf->process_status = $request->option;	
             $pdf->save();
         }else{
             //die('This is the nothing !');
-            $course->details = $request->details;
             $course->process_status = $request->option;
             $course->save();
         }
 
-        return back()->with("s_success", "design updated successfully ");
-
+        return back()->with(["s_success"=>"course attachment activated successfully" , 'active_tab'=>2]);
     }
 
     public function course_pdf(Request $request , $id){

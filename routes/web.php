@@ -208,13 +208,28 @@ Route::middleware([ 'auth' ])->controller(UniversityController::class)->group(fu
  Route::get('/university-add/{data?}', 'add')->name('uni.add');
  Route::post('/university-store', 'store')->name('store.uni');
  Route::get('/university-list', 'list')->name('list.uni');
+
  Route::get('/university-view/{id}', 'view')->name('view.uni');
  // Route::get('/university-edite/{id}','edite')->name('edite.uni');
- // Route::post('/university-update', 'update')->name('update.uni');
+ Route::post('/university-update', 'update')->name('update.uni');
  Route::get('/university-delete/{id}', 'delete_uni')->name('delete.uni');
+
+ Route::post('/uni-course-update', 'Course_update')->name('cor.update.uni');
+
+
+ Route::post('/uni-student-update', 'Student_update')->name('stu.update.uni');
+
+ //university course delete
+ Route::get('/uni-course-delete/{id}', 'Course_delete')->name('uni.delete.cor');
 
  //feth uni record for get the data
  Route::get('/uni-record/{id}', 'fetchRecord')->name('fetch.uni.record');
+
+ //this is for get information of the courses related to university 
+ Route::get('/uni-course-record/{id}', 'fetchCourseRecord')->name('uni.course.record');
+
+ //this is for get information of the student related to university 
+ Route::get('/uni-student-record/{id}', 'fetchStudentRecord')->name('uni.student.record');
 
 });
 
@@ -228,7 +243,11 @@ Route::middleware([ 'auth' ])->controller(CourseController::class)->group(functi
  //add university add
  Route::get('/courses', 'index')->name('cor');
  Route::post('/course-store', 'store')->name('store.cor');
+
+
  Route::post('/course-requre', 'requre_store')->name('req_store.cor');
+  //feth uni record for get the data
+ Route::get('/req-fetch/{id}', 'fetchReq')->name('req.fetch');
  Route::post('/course-requre-update', 'requre_update')->name('req_update.cor');
  Route::get('/course-requre-delete/{id}', 'requre_delete')->name('req_delete.cor');
 
@@ -241,6 +260,14 @@ Route::middleware([ 'auth' ])->controller(CourseController::class)->group(functi
 
  //PDF GENERATION FOR USE CASE
  Route::post('/course-pdf-store', 'course_pdf_store')->name('course.pdf.design');
+
+ //pdf upload
+ Route::post('/course-pdf-upload', 'course_pdf_upload')->name('course.pdf.upload');
+
+ //activation of doc
+ Route::post('/course-pdf-activation', 'course_pdf_active')->name('course.pdf.active');
+
+
  Route::post('/upload', 'uploadimage')->name('ckeditor.upload');
 
 });
@@ -466,11 +493,14 @@ Route::middleware([ 'auth' ])->controller(PaymentController::class)->group(funct
  //this is the payment infromation section
  Route::get("/payment-info", 'student_info');
 
-//     Route::post('/payment-type-store', 'store')->name('store.pay');
-//     Route::get('/payment-type-edite/{id}','edite')->name('edite.pay');
-//     Route::post('/payment-type-update', 'update')->name('update.pay');
-//     Route::get('/payment-type-delete/{id}', 'delete_type')->name('delete.pay');
-//     Route::get("/payment-student",  'student');
+ Route::get("/update-payment-info", 'studentUpdate_info');
+
+
+    //     Route::post('/payment-type-store', 'store')->name('store.pay');
+    //     Route::get('/payment-type-edite/{id}','edite')->name('edite.pay');
+    //     Route::post('/payment-type-update', 'update')->name('update.pay');
+    //     Route::get('/payment-type-delete/{id}', 'delete_type')->name('delete.pay');
+    //     Route::get("/payment-student",  'student');
 });
 
 // this is all routes for only admin section

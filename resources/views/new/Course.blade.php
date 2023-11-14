@@ -1,47 +1,117 @@
-
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-      <meta charset="utf-8">
-      <meta http-equiv="X-UA-Compatible" content="IE=edge">
-      <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0,minimal-ui">
-      <title>Courses | Edudeve</title> 
-	  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-      <meta http-equiv="X-UA-Compatible" content="IE=edge"> 	  
-      <link rel="icon" type="image/x-icon" href="{{ (!empty($cp->logo)) ? asset('uploads/'.$cp->logo):asset('assets/assets/img/favicon.ico')}}"/>
-       @include('new_layouts.partials.header') 
-       
-    </head>
 
-   <body>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0,minimal-ui">
+  <title>Courses | Edudeve</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <link rel="icon" type="image/x-icon"
+    href="{{ (!empty($cp->logo)) ? asset('uploads/'.$cp->logo):asset('assets/assets/img/favicon.ico')}}" />
+  @include('new_layouts.partials.header')
 
-    <style>
-        .welcomename{background: rgb(233,45,24); background: linear-gradient(180deg, rgba(233,45,24,1) 0%, rgba(246,173,1,1) 32%, rgba(49,116,241,1) 66%, rgba(36,154,65,1) 100%); border:0px;}
-        #tograypanelmenu .welcomename{height:27px; width:27px; padding: 2px; border:0px;}
-        #tograypanelmenu .welcomename .inside{width:100%; height:100%; border-radius: 100%; text-align:center; background-color:#fff; font-size:15px;}
-        
-        
-        .prifilemenuouter{background-color:#2d2f31; position:fixed; right:10px; top:40px; color:#fff; z-index:999; width:376px;border-radius: 28px; padding:10px; display:none;}
-        .prifilemenuouter .inside{ background-color:#1f1f1f; border-radius: 24px;}
-        .prifilemenuouter .content{padding:10px;}
-        .buddyouter{background: rgb(233,45,24); background: linear-gradient(180deg, rgba(233,45,24,1) 0%, rgba(246,173,1,1) 32%, rgba(49,116,241,1) 66%, rgba(36,154,65,1) 100%); padding:4px; border-radius:100px; width:64px; height:64px; margin-right:5px; position:relative;}
-        .buddyouter .buddyimg{background-color:#fff;  width:100%; height:100%;border-radius:100px; font-size:35px; text-align:center; color:#000;}
-        .buttonprofile{border: 1px solid #adadad70; padding: 5px 10px; color: #FFFFFF; font-size: 14px; font-weight: 600; margin-top:10px; text-align: left; border-radius: 10px; cursor: pointer; }
-        .buttonprofile:hover{ background-color: #cccccc12;}
-    </style>
+</head>
 
-    <!--top gray panel menu-->
-    @include('new_layouts.topnavbar') 
-    <!--end of the top gray panel menue-->
+<body>
 
-    <!--sidebnavbar section-->
-    @include('new_layouts.sidenavbar') 
-    <!--end of the section-->
+  <style>
+    .welcomename {
+      background: rgb(233, 45, 24);
+      background: linear-gradient(180deg, rgba(233, 45, 24, 1) 0%, rgba(246, 173, 1, 1) 32%, rgba(49, 116, 241, 1) 66%, rgba(36, 154, 65, 1) 100%);
+      border: 0px;
+    }
+
+    #tograypanelmenu .welcomename {
+      height: 27px;
+      width: 27px;
+      padding: 2px;
+      border: 0px;
+    }
+
+    #tograypanelmenu .welcomename .inside {
+      width: 100%;
+      height: 100%;
+      border-radius: 100%;
+      text-align: center;
+      background-color: #fff;
+      font-size: 15px;
+    }
 
 
-    <!---main content section --->
+    .prifilemenuouter {
+      background-color: #2d2f31;
+      position: fixed;
+      right: 10px;
+      top: 40px;
+      color: #fff;
+      z-index: 999;
+      width: 376px;
+      border-radius: 28px;
+      padding: 10px;
+      display: none;
+    }
 
-    <div class="wrapper" style="margin-top: 56px;padding-left: 20px;">
+    .prifilemenuouter .inside {
+      background-color: #1f1f1f;
+      border-radius: 24px;
+    }
+
+    .prifilemenuouter .content {
+      padding: 10px;
+    }
+
+    .buddyouter {
+      background: rgb(233, 45, 24);
+      background: linear-gradient(180deg, rgba(233, 45, 24, 1) 0%, rgba(246, 173, 1, 1) 32%, rgba(49, 116, 241, 1) 66%, rgba(36, 154, 65, 1) 100%);
+      padding: 4px;
+      border-radius: 100px;
+      width: 64px;
+      height: 64px;
+      margin-right: 5px;
+      position: relative;
+    }
+
+    .buddyouter .buddyimg {
+      background-color: #fff;
+      width: 100%;
+      height: 100%;
+      border-radius: 100px;
+      font-size: 35px;
+      text-align: center;
+      color: #000;
+    }
+
+    .buttonprofile {
+      border: 1px solid #adadad70;
+      padding: 5px 10px;
+      color: #FFFFFF;
+      font-size: 14px;
+      font-weight: 600;
+      margin-top: 10px;
+      text-align: left;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .buttonprofile:hover {
+      background-color: #cccccc12;
+    }
+  </style>
+
+  <!--top gray panel menu-->
+  @include('new_layouts.topnavbar')
+  <!--end of the top gray panel menue-->
+
+  <!--sidebnavbar section-->
+  @include('new_layouts.sidenavbar')
+  <!--end of the section-->
+
+
+  <!---main content section --->
+
+  <div class="wrapper" style="margin-top: 56px;padding-left: 20px;">
     <div class="newboxheading">
       <div class="newhead">Coures
         <div class="newoptionmenu">
@@ -112,34 +182,37 @@
                           <th width="1%"></th>
                           <th width="1%"></th>
                           <th>Name</th>
-                          <th >Category</th>
+                          <th>Category</th>
                           <th>Period</th>
-                          <th >Start Dates</th>
-                         
+                          <th>Start Dates</th>
+
                           <th width="1%">&nbsp;</th>
-                          <th width="1%">&nbsp;</th>
-                          <th width="1%">&nbsp;</th>
+                          {{-- <th width="1%">&nbsp;</th>
+                          <th width="1%">&nbsp;</th> --}}
                         </tr>
                       </thead>
                       <tbody>
 
-                      @foreach ($courses as $row)
+                        @foreach ($courses as $row)
                         <tr>
                           <td width="1%"> <input type="checkbox" name="assignall[]" class="checkBoxClass"
                               id="assignqury" value="100006" onclick="selectedfun();"
                               style="width: 16px; height: 16px;"></td>
-                          <td width="1%"><a class="dropdown-item neweditpan" onclick="loadpop('Edit Course',this,'600px')" data-toggle="modal" data-target=".bs-example-modal-center" popaction="action=addcourse&amp;id=100001"><img src="{{ (!empty($row->photo)) ? asset('uploads/'.$row->photo.''):('https://bootdey.com/img/Content/avatar/avatar7.png') }}" width="35" height="35" style="border-radius: 25px;"></a></td>
-                          <td><a href="display.html?ga=clients&id=100006&view=1"><strong>{{ $row->name  }}</strong></a>
-                          </td>
-                          <td >{{$row->category->name}}</td>
-                          <td >{{$row->course_period}}</td>
-                          <td >{{ date('F j, Y', strtotime($row->starting_date)) }} / 
-                                                        {{ date('F j, Y', strtotime($row->starting_date2)) }}</td>
-                         
                           <td width="1%"><a class="dropdown-item neweditpan"
-                              href="display.html?ga=clients&id=100006&view=1" style="float:left;"><i class="fa fa-eye"
-                                aria-hidden="true"></i></a></td>
-                          <td width="1%">
+                              onclick="loadpop('Edit Course',this,'600px')" data-toggle="modal"
+                              data-target=".bs-example-modal-center" popaction="action=addcourse&amp;id=100001"><img
+                                src="{{ (!empty($row->photo)) ? asset('uploads/'.$row->photo.''):('https://bootdey.com/img/Content/avatar/avatar7.png') }}"
+                                width="35" height="35" style="border-radius: 25px;"></a></td>
+                          <td><a href="display.html?ga=clients&id=100006&view=1"><strong>{{ $row->name }}</strong></a>
+                          </td>
+                          <td>{{$row->category->name}}</td>
+                          <td>{{$row->course_period}}</td>
+                          <td>{{ date('F j, Y', strtotime($row->starting_date)) }} /
+                            {{ date('F j, Y', strtotime($row->starting_date2)) }}</td>
+
+                          <td width="1%"><a class="dropdown-item neweditpan" href="{{ route('view.cor',$row->id) }}"
+                              style="float:left;"><i class="fa fa-eye" aria-hidden="true"></i></a></td>
+                          {{-- <td width="1%">
                             <a class="dropdown-item neweditpan" onclick="loadpop2('Edit Student',this,'600px')"
                               data-toggle="modal" data-target="#myModal2" data-backdrop="static"
                               popaction="action=addclient&id=100006"><i class="fa fa-pencil" aria-hidden="true"></i></a>
@@ -147,10 +220,10 @@
                           <td width="1%">
                             <a class="dropdown-item neweditpan" onclick="loadpop2('Edit Student',this,'600px')"
                               data-toggle="modal" data-target="#myModal2" data-backdrop="static"
-                              popaction="action=addclient&id=100006"><i class="fa fa-trash" aria-hidden="true" ></i></a>
-                          </td>
+                              popaction="action=addclient&id=100006"><i class="fa fa-trash" aria-hidden="true"></i></a>
+                          </td> --}}
                         </tr>
-                      @endforeach  
+                        @endforeach
 
 
 
@@ -186,7 +259,8 @@
 
 
 
-          </div><!--end col-->
+          </div>
+          <!--end col-->
 
           <!-- end row -->
 
@@ -202,7 +276,6 @@
 
 
   <script>
-
     $(document).ready(function () {
       $("#ckbCheckAll").click(function () {
         $(".checkBoxClass").prop('checked', $(this).prop('checked'));
@@ -256,15 +329,15 @@
     showcurrentworkinghours();
   </script>
 
-  
-    <!--- end fot the main contetn section --->
 
-      <div style="height:50px;"></div>
-      <iframe id="actoinfrm" name="actoinfrm" src="" style="display:none;"></iframe>
-      @include('new_layouts.partials.footer') 
+  <!--- end fot the main contetn section --->
 
-      <script>
-        // Get the current date
+  <div style="height:50px;"></div>
+  <iframe id="actoinfrm" name="actoinfrm" src="" style="display:none;"></iframe>
+  @include('new_layouts.partials.footer')
+
+  <script>
+    // Get the current date
         const currentDate = new Date();
 
         // Get the day of the week (e.g., "Sat")
@@ -294,11 +367,11 @@
         document.querySelector('#wise').textContent = timeOfDay;
         document.querySelector('#cdate').textContent = currentDate.getDate();
         document.querySelector('#CDinfo').textContent = `${dayOfWeek}, ${monthName} , ${year}`;
-      </script>
+  </script>
 
-      
-    </div>                   
-    
-   </body>
-   
+
+  </div>
+
+</body>
+
 </html>

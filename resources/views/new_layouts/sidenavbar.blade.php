@@ -93,16 +93,19 @@
             </li>
 
 
-            <li class="has-submenu {{ Request::is('student')? 'active': 'false' }}"><a href="{{ route('stu') }}"
-                data-toggle="tooltip" data-placement="right" title="Students"><i class="fa fa-user-circle-o"></i></a>
+            <li class="has-submenu {{ Request::is('student') || Request::is('student-view*') ? 'active': 'false' }}"><a
+                href="{{ route('stu') }}" data-toggle="tooltip" data-placement="right" title="Students"><i
+                  class="fa fa-user-circle-o"></i></a>
             </li>
 
-            <li class="has-submenu {{ Request::is('university-add*')? 'active': 'false' }}"><a
-                href="{{ route('uni.add') }}" data-toggle="tooltip" data-placement="right" title="University"><i
+            <li
+              class="has-submenu {{ Request::is('university-add*') || Request::is('university-view*') ? 'active': 'false' }}">
+              <a href="{{ route('uni.add') }}" data-toggle="tooltip" data-placement="right" title="University"><i
                   class="fa fa-university"></i></a>
             </li>
 
-            <li class="has-submenu " class="{{ Request::is('courses')? 'active': 'false' }}"><a
+            <li class="has-submenu "
+              class="{{ Request::is('courses') || Request::is('course-view*') ? 'active': 'false' }}"><a
                 href="{{ route('cor') }}" data-toggle="tooltip" data-placement="right" title="Course"><i
                   class="fa fa-book"></i></a>
             </li>

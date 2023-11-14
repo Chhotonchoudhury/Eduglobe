@@ -16,33 +16,47 @@ class PaymentController extends Controller
     //
     public function payment(Request $request){
 
-        $payment = $request->validate([
-            'type' => ['required'],
-            'course_name' => ['required'],
-            'student' => ['required'],
-            'amount' => ['required'],
-            'pay_slip' => 'required|mimes:jpg,png,jpeg|max:2048',
-        ]);
+        // $payment = $request->validate([
+        //     'type' => ['required'],
+        //     'course_name' => ['required'],
+        //     'student' => ['required'],
+        //     'amount' => ['required'],
+        //     'pay_slip' => 'required|mimes:jpg,png,jpeg|max:2048',
+        // ]);
 
          //working with image
-         if($request->pay_slip){
-            $file = $request->pay_slip;
-            $ex = $request->pay_slip->extension();
-            $filename = time(). '.' .$ex;
-            $file->move(public_path('uploads'),$filename);
-        }
-
-        $txn = uniqid();
-        Payment::create([
-            'type'   => $request->type,
-            'txn_id' => $txn,
-            'course_id' => $request->course_name,
-            'student_id' =>	$request->student,
-            'amount' => $request->amount,
-            'pay_slip' => $filename,
-            'entry_id'=> auth()->user()->id,
-          ]);
-        return back()->with('s_success','Payment Done successfully !');
+        //  if($request->pay_slip){
+        //     $file = $request->pay_slip;
+        //     $ex = $request->pay_slip->extension();
+        //     $filename = time(). '.' .$ex;
+        //     $file->move(public_path('uploads'),$filename);
+        // }
+       if($request->paymentRole != 2){
+            $txn = uniqid();
+            Payment::create([
+                'type'   => $request->type,
+                'txn_id' => $txn,
+                'course_id' => $request->course,
+                'student_id' =>	$request->student,
+                'amount' => $request->amount,
+                // 'pay_slip' => $filename,
+                'entry_id'=> auth()->user()->id,
+            ]);
+            return back()->with('s_success','university payment done successfully !');
+       }else{
+            $txn = uniqid();
+            Commission::create([
+                'type'   => $request->type,
+                'txn_id' => $txn,
+                'course_id' => $request->course,
+                'student_id' =>	$request->student,
+                'amount' => $request->amount,
+                // 'pay_slip' => $filename,
+                'entry_id'=> auth()->user()->id,
+            ]);
+            return back()->with('s_success','Commission payment done successfully !');
+       }     
+        
     }
 
     public function paymentview(){
@@ -70,45 +84,46 @@ class PaymentController extends Controller
 
     public function paymentupdate(Request $request){
 
-            $request->validate([
-                'type' => ['required'],
-                'course' => ['required'],
-                'student' => ['required'],
-                'amount' => ['required'],
-            ]);
-            $pay = Payment::find($request->id);
+            // $request->validate([
+            //     'type' => ['required'],
+            //     'course' => ['required'],
+            //     'student' => ['required'],
+            //     'amount' => ['required'],
+            // ]);
 
-            if($request->file('pay_slip')){
-                $request->validate([ 'pay_slip' => 'required|mimes:jpg,png,jpeg|max:2048',]);
-                //die(public_path('uploads/'.$course->photo));
-                $file = $request->file('pay_slip');
-                if($pay->pay_slip){
-                   if(file_exists(public_path('uploads/'.$pay->pay_slip))){
-                    unlink(public_path('uploads/'.$pay->pay_slip));
-                   }
-                }
-                $ex = $file->extension();
-                $filename = time(). '.' .$ex;
-                $file->move(public_path('uploads'),$filename);
-                $pay->pay_slip = $filename;
-              }
+            if($request->paymentRole != 2){
+
+                $pay = Payment::find($request->id);
+                $pay->type  = $request->type;
+                $pay->amount = $request->amount;
+                $pay->save();
+                return back()->with('s_success','University Payment Updated successfully !');
+
+            }else{
+
+                $pay = Commission::find($request->id);
+                $pay->type  = $request->type;
+                $pay->amount = $request->amount;
+                $pay->save();
+                return back()->with('s_success','Commission Payment Updated successfully !');
+
+            }
             
-            $pay->type  = $request->type;
-            $pay->course_id = $request->course;
-            $pay->student_id =	$request->student;
-            $pay->amount = $request->amount;
-            $pay->save();
+
           
-        return back()->with('s_success','University Payment Updated successfully !');
+            
+           
+          
+        
     }
 
     public function paymentdelete(Request $request , $id){
         $pay = Payment::find($id);
-        if($pay->pay_slip){
-            if(file_exists(public_path('uploads/'.$pay->pay_slip))){
-             unlink(public_path('uploads/'.$pay->pay_slip));
-            }
-         }
+        // if($pay->pay_slip){
+        //     if(file_exists(public_path('uploads/'.$pay->pay_slip))){
+        //      unlink(public_path('uploads/'.$pay->pay_slip));
+        //     }
+        //  }
         $pay->delete();
         return back()->with('s_success','Payment record deleted successfully !');
     }
@@ -202,13 +217,13 @@ class PaymentController extends Controller
 
     public function commissiondelete(Request $request , $id){
         $pay = Commission::find($id);
-        if($pay->pay_slip){
-            if(file_exists(public_path('uploads/'.$pay->pay_slip))){
-             unlink(public_path('uploads/'.$pay->pay_slip));
-            }
-         }
+        // if($pay->pay_slip){
+        //     if(file_exists(public_path('uploads/'.$pay->pay_slip))){
+        //      unlink(public_path('uploads/'.$pay->pay_slip));
+        //     }
+        //  }
         $pay->delete();
-        return back()->with('s_success','Commission Payment record deleted successfully !');
+        return back()->with('s_success','Commission Payment deleted successfully!');
     }
 
 
@@ -324,10 +339,42 @@ class PaymentController extends Controller
 
         //student commission
         $response['stu_com'] =Commission::where('student_id','=',$id)->get()->sum('amount');
+        //student ifo
+        $response['student'] = Student::find($id);
 
       return response()->json($response);
     }
     //ajax payment info end
+
+
+    ///this is ajax method for get the payment info update
+    public function studentUpdate_info(){
+        $id = $_GET['id'];
+
+        $type = $_GET['type'];
+        // $u_info = Student::where('course_id', '=', $id)->get();
+
+        if($type !=2 ){
+            $response['data'] = Payment::find($id);
+            $row = Payment::find($id);
+        }else{
+            $response['data'] = Commission::find($id);
+            $row = Commission::find($id);
+        }   
+        
+        //Total student payment 
+        $response['payment'] =Payment::where('student_id','=',$row->student_id)->get()->sum('amount');
+
+        //student direct payment
+        $response['stu_payment'] =Student_Payment::where('student_id','=',$row->student_id)->get()->sum('amount');
+
+        //student commission
+        $response['stu_com'] =Commission::where('student_id','=',$row->student_id)->get()->sum('amount');
+        //student ifo
+        $response['student'] = Student::find($row->student_id);
+
+      return response()->json($response);
+    }
 
     
 

@@ -185,7 +185,7 @@
                           <th width="10%">Mobile</th>
                           <th width="1%">Email</th>
                           <th width="1%">Address</th>
-                          <th width="1%">Status</th>
+                          <th width="1%">Processing</th>
                           <th width="12%" align="left">By</th>
                           <th width="1%">&nbsp;</th>
                           {{-- <th width="1%">&nbsp;</th>
@@ -210,10 +210,10 @@
                           <td width="1%">{{$row->email}}</td>
                           <td width="1%">{{$row->country}},{{$row->city}}</td>
                           <td width="1%">
-                            @if($row->active_status == 0)
-                            <span class="badge badge-danger">Active</span>
+                            @if($row->process_status == 0)
+                            <span class="badge badge-danger">No active</span>
                             @else
-                            <span class="badge badge-success">Active</span>
+                            <span class="badge badge-success">Processing</span>
                             @endif
                           </td>
                           <td width="12%" align="left">

@@ -118,13 +118,13 @@
                 </div>
               </td>
               <td width="80%" align="left" valign="middle">
-                <div style="font-size:16px; font-weight:600;">Education CRM</div>
+                <div style="font-size:16px; font-weight:600;">{{ auth()->user()->name }}</div>
                 <div style="margin-bottom:0px; font-size:12px; font-weight:400; color:#adadad;">Email:
-                  <strong>info@travbizz.com</strong>
+                  <strong>{{ auth()->user()->email }}</strong>
                 </div>
-                <div style="margin-bottom:0px; font-size:12px; font-weight:400; color:#adadad;">Last Login:
+                {{-- <div style="margin-bottom:0px; font-size:12px; font-weight:400; color:#adadad;">Last Login:
                   <strong>23/09/2023 - 06:44 PM</strong>
-                </div>
+                </div> --}}
 
               </td>
             </tr>
