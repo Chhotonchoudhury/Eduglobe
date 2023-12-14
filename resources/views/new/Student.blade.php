@@ -240,12 +240,12 @@
                           </td>
                           <td width="1%"><a href="{{ route('view.stu' , $row->id) }}" class="dropdown-item neweditpan"
                               href="#" style="float:left;"><i class="fa fa-eye" aria-hidden="true"></i></a></td>
-                          {{-- <td width="1%">
+                          <td width="1%">
                             <a class="dropdown-item neweditpan" onclick="loadpop2('Edit Student',this,'600px')"
                               data-toggle="modal" data-target="#myModal2" data-backdrop="static"
                               popaction="action=addclient&id=100006"><i class="fa fa-pencil" aria-hidden="true"></i></a>
                           </td>
-                          <td width="1%">
+                          {{--<td width="1%">
                             <a class="dropdown-item neweditpan" onclick="loadpop2('Edit Student',this,'600px')"
                               data-toggle="modal" data-target="#myModal2" data-backdrop="static"
                               popaction="action=addclient&id=100006"><i class="fa fa-trash" aria-hidden="true"></i></a>

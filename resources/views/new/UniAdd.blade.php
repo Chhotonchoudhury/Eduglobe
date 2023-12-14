@@ -222,11 +222,11 @@
 
                           <td width="1%"><a class="dropdown-item neweditpan" href="{{ route('view.uni', $row->id) }}"
                               style="float:left;"><i class="fa fa-eye" aria-hidden="true"></i></a></td>
-                          {{-- <td width="1%">
+                          <td width="1%">
                             <a class="dropdown-item neweditpan uniedite" data-id="{{ $row->id }}"><i
                                 class="fa fa-pencil" aria-hidden="true"></i></a>
                           </td>
-                          <td width="1%">
+                          {{-- <td width="1%">
                             <a class="dropdown-item neweditpan " href="javascript:void(0);"
                               onclick="confirmDelete('{{ route('delete.uni', $row->id) }}');"><i class="fa fa-trash"
                                 aria-hidden="true"></i></a>

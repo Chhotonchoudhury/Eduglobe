@@ -76,10 +76,16 @@ class Student extends Authenticatable implements MustVerifyEmail
     public function emgs(){
         return $this->belongsTo(EMGS_Status::class , 'emg_status');
     }
+
+    public function studentPaymentStatus(){
+        return $this->belongsTo(StudentPaymentStatus::class , 'payment_status');
+    }
     
      public function payment(){
         return $this->belongsTo(Payment_status::class , 'StudentPaymentStatus');
     }
+
+    
 
         /**
      * The attributes that should be hidden for serialization.

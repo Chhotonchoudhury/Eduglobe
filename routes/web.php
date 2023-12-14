@@ -20,7 +20,10 @@ use App\Http\Controllers\UniversityController;
 use App\Http\Controllers\UsersManageController;
 use App\Http\Controllers\WebsiteController;
 use App\Http\Controllers\WebsiteRequestController;
+use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\MailController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Mail;
 
 /*
 |--------------------------------------------------------------------------
@@ -335,6 +338,29 @@ Route::middleware([ 'auth' ])->controller(CategoryController::class)->group(func
 });
 //end of the section of course category section
 
+//this is the mail controller route sections
+Route::middleware([ 'auth' ])->controller(MailController::class)->group(function () {
+    //this porson start of the mailparts 
+    Route::get('/mail-templates', 'mails')->name('mail.list');
+    Route::get('/mail-templates-create', 'mailcreate')->name('mail.create');
+    Route::post('/mail-tempate-store', 'mailstore')->name('mail.store'); 
+    
+    Route::get('/mail-template-edite/{id}', 'edite_mail')->name('mail.edite');
+    Route::post('/mail-tempate-update', 'mailupdate')->name('mail.update');
+
+    Route::get('/mail-template-show/{id}', 'ShowMailTemplate');
+    //endof the mail parts
+
+    
+
+    //mail 
+
+    Route::get('/mail-settings', 'mailsettings')->name('mail.settings');
+    Route::patch('/mail-setting-update', 'mailsettingsUpdate')->name('mail.settings.update');
+});
+
+//end of the sections 
+
 //this is the student controller section
 Route::middleware([ 'auth' ])->controller(StudentController::class)->group(function () {
 
@@ -350,6 +376,12 @@ Route::middleware([ 'auth' ])->controller(StudentController::class)->group(funct
  Route::get('/enq-delete/{id}', 'enq_delete_student')->name('enq.delete');
 
  //End of the section
+
+ //processed student routes 
+ Route::get('/processed-students', 'process_stu')->name('process.stu');
+ Route::get('/processed-stu-record/{id}', 'fetchstuRecord');
+ Route::post('/processed-status-update', 'process_status')->name('process.status');
+ //end of the routes 
 
  Route::get('/student', 'index')->name('stu');
  Route::post('/student-store', 'store')->name('store.stu');
@@ -503,20 +535,29 @@ Route::middleware([ 'auth' ])->controller(PaymentController::class)->group(funct
     //     Route::get("/payment-student",  'student');
 });
 
+//this is the expense routes sections 
+
+Route::middleware([ 'auth' ])->controller(ExpenseController::class)->group(function () {
+    Route::get('/expenses', 'Index')->name('expenses');
+    Route::post('/expense-store', 'store')->name('store.expense');
+    Route::get('/expense-record/{id}', 'fetchRecord')->name('fetch.expense.record');
+});
+
+//end of the routes section
+
 // this is all routes for only admin section
 Route::middleware([ 'auth', 'role:Admin', 'verified' ])->group(function () {
 
  Route::get("/users", [ UsersManageController::class, "index" ])->name('userList');
-//  Route::post("/user-created", [ UsersManageController::class, "store" ])->name('userStore');
+   //  Route::post("/user-created", [ UsersManageController::class, "store" ])->name('userStore');
 
  Route::get("/user-edite/{user_id}", [ UsersManageController::class, "edite" ])->name('userEdite');
  Route::post("/user-edited", [ UsersManageController::class, "edite_data" ])->name('userUpdate');
 
  Route::get("/user-roles", [ UsersManageController::class, "user_role" ])->name('userRoles');
-//  Route::get("/user-permissions/{role_id}", [ UsersManageController::class, "user_permission" ])->name('userPermission');
-
-//  Route::post("/assign-user-permission", [ UsersManageController::class, "permission_assign" ])->name('givePermission');
-//  Route::post("/role-entry", [ UsersManageController::class, "store_role" ])->name('role.entry');
+    // Route::get("/user-permissions/{role_id}", [ UsersManageController::class, "user_permission" ])->name('userPermission');
+   // Route::post("/assign-user-permission", [ UsersManageController::class, "permission_assign" ])->name('givePermission');
+  // Route::post("/role-entry", [ UsersManageController::class, "store_role" ])->name('role.entry');
 
  //Admin login as user
  Route::get('/login-as-user/{id}', [ UsersManageController::class, 'loginAsUser' ])->name('loginAsUser');
@@ -559,6 +600,20 @@ Route::middleware([ 'auth' ])->controller(WebsiteController::class)->group(funct
 Route::get('/logout', [ AuthenticatedSessionController::class, 'destroy' ])->name('logout');
 
 Route::get('/student/logout', [ StudentsController::class, 'destroy' ])->name('student.logout');
+
+Route::get('/test-mail', function(){
+
+    // $mailConfig = config('mail');
+    // dd($mailConfig); // Output the current mail configuration
+    $msg = 'This is a testing mail';
+
+    \Mail::raw('Hi, welcome', function($msg){
+       $msg->to('cont2chhoton@gmail.com')
+       ->subject('testing mail');
+    });
+    dd('sent');
+    // dd(config('custom_mail_config.password'));
+});
 
 require __DIR__ . '/auth.php';
 

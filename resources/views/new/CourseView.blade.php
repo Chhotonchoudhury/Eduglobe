@@ -1823,24 +1823,24 @@
                 alert("Your browser doesn't support File API!"); //if File API is absent
             }
         });
-        });
+     });
     //end the section of multile 
 
     
-        $(document).ready(function() {
-          // Check if the success alert exists
-          if ($('.headersavealert').length) {
-              setTimeout(function() {
-                  $('.headersavealert').slideUp(500, function() {
-                      $(this).remove(); // Remove the alert from the DOM
-                  });
-              }, 3000); // Hide the alert after 3 seconds (adjust as needed)
-          }
-      });
+    $(document).ready(function() {
+        // Check if the success alert exists
+        if ($('.headersavealert').length) {
+            setTimeout(function() {
+                $('.headersavealert').slideUp(500, function() {
+                    $(this).remove(); // Remove the alert from the DOM
+                });
+            }, 3000); // Hide the alert after 3 seconds (adjust as needed)
+        }
+    });
 
-      $.ajaxSetup({
-            headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
-        });
+    $.ajaxSetup({
+        headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
+    });
 
       
       $(document).ready(function() {

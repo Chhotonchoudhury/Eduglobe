@@ -782,4 +782,51 @@ class StudentController extends Controller
     //delete notification end
 
 
+
+    //this is the sectionfor the process students 
+
+    public function process_stu(){
+        $page_main = "Student";
+        $page = "Student List";
+        $cp = Companyprofile::first();
+
+        $students = Student::where('process_status','=', 1)->orderby('id','desc')->get();
+
+        //processing status 
+        $status = Status::all();
+        //EMGS status 
+        $emgs_status = EMGS_Status::all();
+        //Payment status
+        $payment_status = StudentPaymentStatus::all();
+
+
+        return view('new.ProcessedStu', compact('students','status','emgs_status','payment_status','page_main','page','cp'));
+    }
+
+    //this is the information all about the fetch processed student information 
+    public function fetchstuRecord($id){
+
+        $record = Student::find($id);
+        $status = $record->status ? $record->status->id : null;
+        $emgs = $record->emgs ? $record->emgs->id : null;
+        $payment_status = $record->studentPaymentStatus ? $record->studentPaymentStatus->id : null;        
+        return response()->json(['success' => true, 'student' => $record, 'status' => $status , 'emgs' => $emgs , 'payment_status' => $payment_status ]);
+    }
+
+    //this is function for status changes 
+
+    public function process_status(Request $request){
+
+        $data = Student::find($request->studentId);
+        $data->status_id = $request->p_status ?? null;
+        $data->emg_status = $request->emgs_status ?? null;
+        $data->payment_status = $request->payment_status ?? null;
+
+        $data->save();
+
+        return back()->with(['s_success'=>'All status saved successfully.']);
+
+    }
+
+
 }

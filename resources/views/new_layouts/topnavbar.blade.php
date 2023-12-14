@@ -158,7 +158,7 @@ $('#showcurrentworkinghours').load('todaysworkinghours.php');
             <div class="buttonprofile" style="margin-top:5px;"><i class="fa fa-user" aria-hidden="true"></i> &nbsp;
               &nbsp; Manage Your Profile</div>
           </a>
-          <a href="display.html?ga=mailsetting">
+          <a href="{{ route('mail.settings') }}">
             <div class="buttonprofile" style="margin-bottom:5px;"><i class="fa fa-envelope" aria-hidden="true"></i>
               &nbsp; &nbsp;Mail Setting</div>
           </a>
@@ -247,7 +247,7 @@ $('#showcurrentworkinghours').load('todaysworkinghours.php');
       }
     </style>
 
-    <a href="display.html?ga=company-expense" title="Company Expense"
+    <a href="{{ route('expenses') }}" title="Company Expense"
       style="position:relative; padding-top: 5px; padding-right:0px;" data-toggle="tooltip" data-placement="bottom"
       data-original-title="Company Expense"><svg xmlns="http://www.w3.org/2000/svg"
         xmlns:xlink="http://www.w3.org/1999/xlink" width="19px" height="19px" viewBox="0 0 14 14" version="1.1">
