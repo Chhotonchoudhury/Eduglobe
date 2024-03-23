@@ -11,7 +11,7 @@
   <link rel="icon" type="image/x-icon"
     href="{{ (!empty($cp->logo)) ? asset('uploads/'.$cp->logo):asset('assets/assets/img/favicon.ico')}}" />
   @include('new_layouts.partials.header')
-
+  <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
 </head>
 
 <body>
@@ -198,6 +198,7 @@
         <div class="page-content">
           <div class="newboxheading">
             <div class="newhead">Student : {{ $student->name }}
+
               <div class="newoptionmenu">
                 <div>
                   <a id="StudentEditeBtn"><button type="button"
@@ -216,9 +217,8 @@
                 </div>
 
                 <div>
-                  <a popaction="action=composemail&queryId=100004"><button type="button"
-                      class="btn btn-secondary btn-lg waves-effect waves-light btn-primary-gray"
-                      style="margin-bottom:10px;">
+                  <a><button type="button" class="btn btn-secondary btn-lg waves-effect waves-light btn-primary-gray"
+                      style="margin-bottom:10px;" data-toggle="modal" data-target=".compose-mail">
 
                       <i class="fa fa-envelope-o" aria-hidden="true"></i> &nbsp;Email</button></a>
                 </div>
@@ -691,59 +691,7 @@
 
                 <!--inside main contetn-->
                 <table width="100%" border="0" cellpadding="0" cellspacing="0">
-                  <tr>
-                    <td colspan="2" align="left" valign="top"
-                      style="background-color:#f5f7f9; border-bottom: 1px solid #cfd7df; padding:10px;">
-                      <div style="font-size:11px; margin-bottom:10px;"><strong>Created:</strong> {{
-                        $student->created_at->format('Y-m-d h:i A') }} |
-                        &nbsp; <strong>Last Updated: {{ $student->updated_at->format('Y-m-d h:i A') }}</strong><strong
-                          style="color:#CC0000;"><a
-                            href="display.html?ga=query&amp;view=1&amp;id=100006&amp;c=3"></a></strong></div>
 
-                      <style>
-                        .breadcrumb {
-                          overflow-x: auto;
-                        }
-                      </style>
-
-                      <div class="querystatustabmain">
-
-                        <ul class="breadcrumb">
-
-                          {{-- <li class="stclass2">
-                            <a href="display.html?ga=query&amp;view=1&amp;id=100006&amp;sts=2">Contacted</a>
-                          </li> --}}
-
-                          {{-- @if($student->status_id != null)
-                          <li class="">
-                            <a href="display.html?ga=query&amp;view=1&amp;id=100006&amp;sts=1">New</a>
-                          </li>
-                          @endif --}}
-
-
-
-                          @foreach($status as $row)
-                          <li class="@if($student->status_id == $row->id)
-                                @if($loop->index === 0 ) stclass1
-                                @elseif($loop->last) stclass5
-                                @else stclass2
-                                @endif
-                              @endif">
-                            <a href="display.html?ga=query&amp;view=1&amp;id=100006&amp;sts=1"
-                              style=" display:inline-block; ">
-                              @if($student->process_status === 0)<i class="fa fa-lock" aria-hidden="true"></i>
-                              &nbsp;@endif
-                              {{ $row->status }}</a>
-                          </li>
-                          @endforeach
-
-
-
-                        </ul>
-
-                      </div>
-                    </td>
-                  </tr>
 
                   <tr>
                     <td align="left" valign="top" width="18%"
@@ -1221,22 +1169,134 @@
 
 
                           <!--this is the status tabs--->
+
                           <div class="tab-pane fade {{ $activeTab === 2 ? 'active show' : '' }}" id="status-tab">
                             <!-- Content for Mails tab goes here -->
-                            <h4 class="mt-3 header-title" style="position:relative;">
-                              Application status
+                            <form method="POST" action="{{ route('stu.process.status') }}"
+                              enctype="multipart/form-data">
+                              @csrf
+                              <input type="hidden" value="{{ $student->id}} " name="studentId">
+                              <h4 class="mt-3 header-title" style="position:relative;">
+                                Application status
 
-                              @if($student->process_status === 0)
-                              <a onclick="if (confirm('Are you sure to make this student under processing..?')) { location.href = '{{ route('process.student', $student->id) }}'; }"
-                                style="position: absolute; font-size: 15px; font-weight: 600; right: 5px; top: 5px; background-color: #005ee2; color: #fff; padding: 1px 10px; border-radius: 3px; cursor:pointer;">
-                                Under Processing &nbsp;+
-                              </a>
-                              @endif
-                            </h4>
+                                @if($student->process_status === 0)
+                                <a onclick="if (confirm('Are you sure to make this student under processing..?')) { location.href = '{{ route('process.student.list', $student->id) }}'; }"
+                                  style="position: absolute; font-size: 15px; font-weight: 600; right: 5px; top: 5px; background-color: #005ee2; color: #fff; padding: 1px 10px; border-radius: 3px; cursor:pointer;">
+                                  Under Processing &nbsp;+
+                                </a>
+                                @endif
+                              </h4>
+
+                              <div class="row p-3">
+                                <div class="col-lg-4 col-md-6 mb-4">
+                                  <div class="card">
+                                    <div class="card-body widget p-2">
+                                      <div class="col-lg-12 circlechart text-center"
+                                        data-percentage="{{ $payment_state }}">
+                                        completed
+                                      </div>
+                                      <p class="font-17 text-center mb-0 text-muted">
+                                        <a class="text-primary" href="javascript:void(0);">{{ $payment_state }}%
+                                        </a>Payment
+                                        completing
+                                        status
+                                      </p>
+                                    </div><br>
+                                    @if($student->payment_status != null)
+                                    <select class="form-control statusSelect" id="" name="payment_status">
+                                      <option value="">select option</option>
+                                      @foreach($paymentstatus as $row)
+                                      <option value="{{ $row->id }}" @if($student->payment_status == $row->id) selected
+                                        @endif>{{ $row->status
+                                        }}
+                                      </option>
+                                      @endforeach
+                                    </select>
+                                    @endif
+                                  </div>
+                                </div>
+
+                                <div class="col-lg-4 col-md-6 mb-4">
+                                  <div class="card">
+                                    <div class="card-body widget p-2">
+                                      <div class="col-lg-12 circlechart text-center" data-percentage="{{ $emg_state }}">
+                                        completed
+                                      </div>
+                                      <p class="font-17 text-center mb-0 text-muted">
+                                        <a class="text-primary" href="javascript:void(0);">{{ $emg_state }}% </a>EMGS
+                                        completing status
+                                      </p>
+                                    </div><br>
+                                    @if($student->emg_status != null)
+                                    <select class="form-control statusSelect" id="" name="emgs_status">
+                                      <option value="">select option</option>
+                                      @foreach($emgsstatus as $row)
+                                      <option value="{{ $row->id }}" @if($student->emg_status == $row->id) selected
+                                        @endif>{{ $row->status }}</option>
+                                      @endforeach
+                                    </select>
+                                    @endif
+                                  </div>
+                                </div>
+
+                                <div class="col-lg-4 col-md-6 mb-4">
+                                  <div class="card">
+                                    <div class="card-body widget p-2">
+                                      <div class="col-lg-12 circlechart text-center" data-percentage="{{ $due_state}}">
+                                        completed
+                                      </div>
+                                      <p class="font-17 text-center mb-0 text-muted">
+                                        <a class="text-primary" href="javascript:void(0);">{{ $due_state }}%
+                                        </a>Processing completing
+                                        status
+                                      </p>
+                                    </div>
+                                    <br>
+                                    @if($student->status_id != null)
+                                    <select class="form-control statusSelect" id="" name="p_status">
+                                      <option value="">select option</option>
+                                      @foreach($status as $row)
+                                      <option value="{{ $row->id }}" @if($student->status_id == $row->id) selected
+                                        @endif>{{ $row->status }}</option>
+                                      @endforeach
+                                    </select>
+                                    @endif
+                                  </div>
+                                </div>
+                              </div>
+
+                              <h4 id="" class="mt-2 header-title saveStatusSection"
+                                style="position:relative;display: none;">
+                                Save Status changes
+
+                                <button type="submit" class="btn-success" onclick="this.value='Saving...';"
+                                  style="position: absolute; font-size: 15px; font-weight: 600; right: 5px; top: 5px; padding: 1px 10px; border-radius: 3px; cursor:pointer;">
+                                  Save Changes Status &nbsp;+
+                                </button>
+
+                              </h4>
 
 
 
-                            <div class="querystatustabmain " style="">
+                            </form>
+
+                            <script>
+                              // Select all elements with the class 'statusSelect'
+                              const selectElements = document.querySelectorAll('.statusSelect');
+                            
+                              // Add change event listener to each select element
+                              selectElements.forEach(selectElement => {
+                                selectElement.addEventListener('change', function() {
+                                  // Select the saveStatusSection
+                                  const saveStatusSection = document.querySelector('.saveStatusSection');
+                            
+                                  // Show the saveStatusSection
+                                  saveStatusSection.style.display = 'block';
+                                });
+                              });
+                            </script>
+
+                            {{-- <div class="querystatustabmain " style="">
 
                               <!---submit form--->
                               <form method="POST" action="{{ route('applicant.status.change') }}" id="statusChangeForm">
@@ -1284,15 +1344,14 @@
 
 
 
-                            </div>
+                            </div> --}}
 
 
-                            <br>
-
-                            <h4 class="mt-0 header-title">Payment status</h4>
 
 
-                            <div class="" style="">
+
+
+                            {{-- <div class="" style="">
 
                               <!---submit form--->
                               <form method="POST" action="{{ route('payment.status.change') }}"
@@ -1339,14 +1398,12 @@
 
 
 
-                            </div>
+                            </div> --}}
 
 
-                            <br>
 
-                            <h4 class="mt-0 header-title">EMGS status</h4>
 
-                            <div class="" style="">
+                            {{-- <div class="" style="">
 
                               <!---submit form--->
                               <form method="POST" action="{{ route('emgs.status.change') }}" id="emgsstatusChangeForm">
@@ -1368,7 +1425,8 @@
                                       @else stclass2
                                       @endif
                                     @endif">
-                                  <a href="#" @if($student->process_status !== 0) onclick="updateEmgsStatus('{{ $row->id
+                                  <a href="#" @if($student->process_status !== 0) onclick="updateEmgsStatus('{{
+                                    $row->id
                                     }}')" @endif>
                                     @if($student->process_status === 0)<i class="fa fa-lock" aria-hidden="true"></i>
                                     &nbsp;@endif{{ $row->status }}
@@ -1392,11 +1450,12 @@
 
 
 
-                            </div>
+                            </div> --}}
 
 
-                            <br>
+
                           </div>
+
 
                           <!--end of the status tab--->
 
@@ -1967,10 +2026,68 @@
                           </div>
 
 
-                          <div class="tab-pane fade" id="mails-tab">
+                          <div class="tab-pane fade {{ $activeTab === 6 ? 'active show' : '' }}" id="mails-tab">
                             <!-- Content for Activity tab goes here -->
-                            <h4 class="mt-0 header-title">Mails</h4>
-                            <p>This is the content for Mail tab.</p>
+                            <div style="padding:2px;">
+
+
+                              <div class="btn-toolbar p-3" role="toolbar" style="background-color: #cfd7df42;">
+                                <div class="btn-group mr-2 mb-2 mb-sm-0" style="overflow:visible;">
+                                  <button type="button" data-toggle="modal" data-target=".compose-mail"
+                                    class="btn btn-primary waves-light waves-effect"><i class="fa fa-envelope-o"></i>
+                                    &nbsp;Compose</button>
+                                </div>
+                                <div class="btn-group mr-2 mb-2 mb-sm-0">
+                                  <button style="background-color: #fff; border: 1px solid #ddd; font-size:12px;"
+                                    type="button" class="btn btn-light waves-effect" data-toggle="modal"
+                                    data-target=".compose-mail"><i class="fa fa-info-circle"></i>
+                                    {{ $student->email }}</button>
+                                </div>
+
+                              </div>
+                              <style>
+                                .mailsent .fa-arrow-circle-left {
+                                  font-size: 18px;
+                                  color: #f47836;
+                                  padding-right: 7px;
+                                  position: absolute;
+                                  top: 17px;
+                                  left: 3px;
+                                }
+
+                                .message-list li {
+                                  border-bottom: 1px solid #e6e6e6;
+                                }
+                              </style>
+
+                              <ul class="message-list">
+
+                                @foreach($composeMails as $row)
+
+                                <li onclick="">
+                                  <div class="col-mail col-mail-1">
+
+                                    <a class="title mailsent  show-email"
+                                      style=" cursor:pointer; left: 0px; padding-left:28px;" data-id="{{ $row->id }}"><i
+                                        class="fa fa-arrow-circle-left" aria-hidden="true"></i>
+                                      {{ $row->recipient_email }}</a>
+                                  </div>
+                                  <div class="col-mail col-mail-2">
+                                    <a class="title mailsent show-email" style="cursor:pointer;"
+                                      data-id="{{ $row->id }}"><span class="badge-warning badge mr-2"></span>{{
+                                      $row->subject }} </a>
+                                    <div class="date" style="padding-left:10px; font-size:12px;">{{
+                                      \Carbon\Carbon::parse($row->created_at)->format('d F Y h:i A') }}
+                                    </div>
+                                  </div>
+                                </li>
+                                @endforeach
+
+
+
+
+                              </ul>
+                            </div>
                           </div>
                           <!-- Content for other tabs goes here with similar structure -->
                         </div>
@@ -3226,6 +3343,160 @@
       </div>
       <!--end of the student activity model--->
 
+      <!---This is the compose mail model section ---->
+      <div class="modal fade bs-example-modal-center compose-mail" tabindex="-1" role="dialog"
+        aria-labelledby="mySmallModalLabel" id="">
+        <div class="modal-dialog" role="document" style="max-width: 900px; width: 900px;">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title mt-0" id="poptitle">Compose Email</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">×</span>
+              </button>
+            </div>
+            <div class="modal-body" id="popcontent">
+
+
+              <form class="custom-validation" action="{{ route('mail.student') }}" id="mailForm" method="post"
+                enctype="multipart/form-data">
+                @csrf
+                {{-- <div style="margin-bottom:20px; color:#000; font-size:13px;"><span
+                    style="color:#999999;">From</span>
+                  crm@travbizz.com</div> --}}
+                <div class="media mb-4"
+                  style="padding-bottom: 10px; border-bottom: 1px solid #dedede; margin-bottom: 30px !important; border-top: 1px solid #dedede; padding-top: 10px; padding-left: 10px; background-color: #f5f5f5;">
+                  <img class="d-flex mr-3 rounded-circle avatar-sm"
+                    src="{{ (!empty($student->photo)) ? asset('uploads/'.$student->photo.'') : 'https://bootdey.com/img/Content/avatar/avatar7.png' }}"
+                    alt="Generic placeholder image" style="width: 40px;">
+                  <div class="media-body">
+                    <h5 class="font-size-14" style="margin-bottom: 0px;margin-top: 0px;">{{ $student->name }}</h5>
+                    <small class="text-muted" style=" font-size:13px;">{{ $student->email }}</small>
+                  </div>
+                </div>
+                <div class="row spdiv">
+                  <div class="col-md-12">
+                    <div class="form-group">
+                      <label for="validationCustom02">CC (optional)</label>
+                      <input type="text" class="form-control" name="cc" value="" autocomplete="off">
+
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row spdiv">
+                  <div class="col-md-12">
+                    <div class="form-group">
+                      <label for="validationCustom02">Subject</label>
+                      <input type="text" class="form-control" name="subject" id="subject" value="" autocomplete="off"
+                        required>
+
+                    </div>
+                  </div>
+
+                </div>
+
+                <div class="row spdiv">
+                  <div class="col-md-12">
+                    <div class="form-group">
+                      <label for="validationCustom02">Email Body</label>
+                      <textarea name="body" class="form-control" id="details1" rows="10" cols="80" required></textarea>
+
+                      <script type="text/javascript">
+                        CKEDITOR.replace( 'editor1' );
+                      </script>
+
+                    </div>
+                  </div>
+
+                </div>
+
+
+
+
+
+                <div class="row spdiv">
+                  <div class="col-md-12">
+                    <div class="form-group">
+                      <label for="validationCustom02">Attachment (optional)</label>
+                      <input name="attachments[]" id="attachments" multiple accept=".pdf, .doc, .docx"
+                        class="form-control" type="file">
+                    </div>
+                  </div>
+                </div>
+
+
+
+                <div class="modal-footer">
+                  <button type="submit" class="btn btn-primary" id="submitButton" onclick="submitForm()">Send Mail
+                  </button>
+                </div>
+
+                <input type="hidden" name="StudentId" value="{{ $student->id }}">
+
+              </form>
+              <script>
+                function submitForm() {
+                    var subjectField = document.getElementById('subject');
+                    var detailsField = document.getElementById('details');
+                    var submitButton = document.getElementById('submitButton');
+            
+                    // Check if the required fields are filled
+                    if (subjectField.checkValidity() && detailsField.checkValidity()) {
+                        submitButton.innerText = 'Mail sending...';
+                        submitButton.disabled = true;
+                        document.getElementById('mailForm').submit();
+                    }
+                }
+              </script>
+
+
+            </div>
+          </div>
+        </div>
+      </div>
+      <!----End of the section ----->
+
+      <!---this is the model section for showing the email part--->
+      <div class="modal fade show-modal">
+        <div class="modal-dialog modal-dialog-centered " style="max-width: 800px; width: 800px;">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title mt-0" id="poptitle">Email Preview</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">×</span>
+              </button>
+            </div>
+            <div class="modal-body" id="popcontent">
+
+
+              <h5 class="font-size-14" style="margin-bottom: 0px;margin-top: 0px;" id="tem-name"></h5>
+              <small class="text-muted" style="font-size: 13px;" id="tem-email"></small>
+
+              {{-- <div style="padding:10px 0px; border-bottom:1px solid #ddd; font-size:16px;">
+                <strong>Recipient Email : </strong> <span id="tem-email">Stage Contact</span>
+              </div> --}}
+
+              <div style="padding:10px 0px; border-bottom:1px solid #ddd; font-size:16px; margin-bottom:30px;">
+                <strong>Email Subject : </strong><span id="tem-subject"></span>
+              </div>
+
+              <p id="tem-details">
+
+              </p>
+
+              <div style="padding:10px 0px; border-bottom:1px solid #ddd; font-size:16px;" id="tem-attachments">
+
+              </div>
+
+
+
+
+            </div>
+          </div>
+        </div>
+      </div>
+      <!---end of the model part ---->
+
     </div>
     <!--end of the course suggetion-->
 
@@ -3398,6 +3669,70 @@
           $(".del").attr("href", id)
         });
       });
+      //end of the part 
+
+      //this is the ajax request for mail template showing 
+      //ajax request for get the data 
+      $(document).ready(function() {
+          $('.show-email').on('click', function(e) {
+              e.preventDefault();
+
+              // Get the record ID from the data-id attribute
+              var recordId = $(this).data('id');
+              // alert(recordId);
+             
+              // AJAX request to fetch the record data based on the ID
+              $.ajax({
+                url: "{{ url('/student-mail-compose-show/') }}" + "/" + recordId, // Replace with your actual URL
+                  type: 'GET',
+                   // Use the appropriate HTTP method
+                  dataType: 'json', // Expect JSON response
+                  success: function(response) {
+                      if (response.success) {
+                            $('#tem-name').html('');
+                            $('#tem-email').html('');
+                            $('#tem-subject').html('');
+                            $('#tem-details').html('');
+                            $('#tem-attachments').html('');
+
+                            //student info section 
+                            $('#tem-name').append(response.student); 
+                            $('#tem-email').append(response.data.recipient_email);
+                            $('#tem-subject').append(response.data.subject);
+                            $('#tem-details').append(response.data.body);
+
+                            // Iterate through attachments and append links
+                            var attachmentsArray = JSON.parse(response.data.attachments);
+
+                              $.each(attachmentsArray, function(index, attachment) {
+                                var fileName = attachment.split("/").pop();
+                                var attachmentUrl = "{{ asset('storage/custom_attachments') }}/" + fileName;
+                                var attachmentLink = '<strong>Attachment ' + (index + 1) + ': </strong><a href="' + attachmentUrl + '" target="_blank">View Attachment</a><br>';
+                                $('#tem-attachments').append(attachmentLink);
+                              });
+                   
+                            // $('#name').val(response.name);
+                            $('.show-modal').modal('show');
+
+                        
+                           
+                       }
+                  },
+                  error: function(xhr, status, error) {
+                      // Handle AJAX errors
+                      console.error('AJAX request failed:', error);
+                  }
+              });
+          });
+      });
+      //end the ajax request
+
+      //end of the mail contetn section 
+
+      $(function(){
+         $('.circlechart').circlechart();
+      });
+
   </script>
 
 </body>

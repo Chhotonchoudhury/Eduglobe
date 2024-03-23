@@ -444,7 +444,7 @@
       });
         //end of the alert function method 
 
-        //ajax request for get the data 
+       //ajax request for get the data 
       $(document).ready(function() {
           $('.show-email').on('click', function(e) {
               e.preventDefault();

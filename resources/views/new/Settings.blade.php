@@ -2058,6 +2058,55 @@
 
 
 
+                            <h4 class="mt-0 header-title">Enquiry status</h4>
+                            <div class="row" style="padding-left:10px;  ">
+
+                              @foreach($enquiry_status as $row)
+                              <div class="col-lg-2">
+                                <div class="form-group input-group"
+                                  style="position: relative; padding: 10px; background-color: #e1f5ff; border: 1px solid #93d5f2; border-left: 5px solid #93d5f2; border-radius: 4px;">
+
+                                  <!-- Add the trash icon here -->
+                                  <form action="http://localhost/eduglobe/student-remove-course" method="post">
+                                    <input type="hidden" name="_token" value="zelymi2fa4XXirO1ZCQoOwhGHU8COqoMq3JcvL8y">
+                                    <input type="hidden" name="student" value="73">
+                                    <input type="hidden" name="course" value="1">
+                                    <a href="#" data-id="{{ route('enquiry.delete.status',$row->id) }}"
+                                      class="delete-confirm5"><button type="button"
+                                        style="position: absolute; top: 5px; right: 5px; background: none; border: none; color: red; cursor: pointer;">
+                                        <i class="fa fa-times"></i>
+                                      </button></a>
+
+                                  </form>
+
+                                  <table border="0" cellpadding="0" cellspacing="0">
+                                    <tbody>
+                                      <tr>
+                                        <td>{{ $row->status }}</td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+
+
+                                </div>
+                              </div>
+                              @endforeach
+
+                              <div class="col-lg-2">
+                                <div class="form-group input-group"
+                                  style="position: relative; padding: 0px; background-color: #f2fcff; border: 2px dashed #eaeaea; border-radius: 4px;"
+                                  data-toggle="modal" data-target=".model6"
+                                  popaction="action=addqualification&amp;qid=100004&amp;sid=3">
+                                  <div
+                                    style="text-align: center; width: 100%; padding: 10px; font-size: 16px; cursor: pointer;">
+                                    <i class="fa fa-plus" aria-hidden="true"></i> Add status
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+
+
                           </div>
 
 
@@ -2814,6 +2863,46 @@ showcurrentworkinghours();
   </div>
   <!---end of the model --->
 
+  <!---model6 for entry of enquiry status--->
+  <div class="modal fade  model6" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" id=""
+    style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <form method="POST" action="{{ route('enquiry.store.status') }}" id="orgForm" enctype="multipart/form-data">
+          @csrf
+          <div class="modal-header">
+            <h5 class="modal-title mt-0" id="poptitle">Enter a new enquiry status</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body" id="popcontent">
+
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-group">
+                  <lable>Enquiry ststus</lable>
+                  <input type="text" id="Oname" name="status" class="form-control"
+                    placeholder="Enter new enquiry status" required>
+                  @error('status')<ul class="parsley-errors-list filled" id="parsley-id-13" aria-hidden="false">
+                    <li class="parsley-required text-danger">{{ $message }}</li>
+                  </ul>@enderror
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <input name="Save" type="submit" value="Save" id="savingbutton" class="btn btn-primary"
+              onclick="this.value='Saving...';">
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <!----end of the model----->
+
   <!----this is model for role and permission add --->
   <div class="modal fade  roles" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" id=""
     style="display: none;" aria-hidden="true">
@@ -3411,6 +3500,29 @@ showcurrentworkinghours();
           <h4 class="modal-title w-100">Are you sure ?</h4>
         </div>
         <div class="modal-body">
+          <p style="font-size: 20px;">Do you really want to delete these status ? This process cannot be undone.</p>
+        </div>
+        <div class="modal-footer justify-content-center">
+          <button type="button" class="btn btn-dark" data-dismiss="modal" style="border-radius: 5px;">Cancel</button>
+          <a class="btn btn-danger del6" style="border-radius: 5px;">Delete</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!---end of the model ---->
+
+  <!--This is the second delete model for showing ----->
+  <div class="modal fade " id="DeleteModal6" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" id=""
+    style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header flex-column">
+          {{-- <div class="icon-box">
+            <i class="las la-exclamation-triangle">&#xE5CD;</i>
+          </div> --}}
+          <h4 class="modal-title w-100">Are you sure ?</h4>
+        </div>
+        <div class="modal-body">
           <p style="font-size: 18px;">Do you really want to delete these role & permissions ? This process cannot be
             undone.</p>
         </div>
@@ -3826,8 +3938,6 @@ showcurrentworkinghours();
     
     });
 
-    
-
       //this is for instant image showing for ptofile
       $(document).ready(function(){
             $('#photo').change(function(e){
@@ -4072,7 +4182,7 @@ showcurrentworkinghours();
     //delete part end model
 
     //second delete 6 part model
-        $(document).ready(function() { 
+    $(document).ready(function() { 
       $(".delete-confirm6").on('click', function() {
         
         let id = $(this).attr("data-id");
@@ -4082,6 +4192,16 @@ showcurrentworkinghours();
     });
 
     //delete part end model
+
+     //second delete 5 part model
+     $(document).ready(function() { 
+      $(".delete-confirm7").on('click', function() {
+        
+        let id = $(this).attr("data-id");
+        $('#DeleteModal7').modal('show');
+        $(".del7").attr("href", id)
+      });
+    });
 
 
     //this is for ftch orginisition information ajax part 

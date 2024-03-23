@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
@@ -20,6 +22,8 @@ use App\Models\EMGS_Status;
 use App\Models\StudentPaymentStatus;
 use App\Models\User;
 use App\Models\Qualification;
+
+use App\Models\ENQ_Status;
 use ZipArchive;
 use File;
 
@@ -30,7 +34,7 @@ use App\Mail\StatusUpdateEmail;
 use App\Mail\WelcomeEmail;
 use App\Mail\CustomEmail; 
 use App\Models\Activity;
-
+use App\Models\StudentComposeMail;
 class StudentController extends Controller
 {
     //
@@ -42,7 +46,7 @@ class StudentController extends Controller
        //This is for admin data showung section
        if(Auth::user()->hasRole('Admin')){
            //all students
-           $students = Student::where('verify','=', 1)->orderby('id','desc')->whereNotIn('archive_status', [1])->get();
+           $students = Student::where('verify','=', 1)->where('process_status','=', 0)->orderby('id','desc')->whereNotIn('archive_status', [1])->get();
            //archive students
            $archive_stu = Student::where('verify','=', 1)->whereNotIn('archive_status', [0])->orderby('id','desc')->get();
        }else{
@@ -69,58 +73,173 @@ class StudentController extends Controller
         return view ('new.Student' , compact('students','archive_stu','cp','page_main','page'), ['request' => $request]);
     }
 
-    public function store(Request $request){
+    // public function store(Request $request){
         
-        $data = Companyprofile::first();
+    //     $data = Companyprofile::first();
 
-         // inputs validation validation 
-         $request->validate([
+    //      // inputs validation validation 
+    //     $request->validate([
+    //         'name' => 'required',
+    //         'email' => 'email|unique:students',
+    //         'dob' => 'required',
+    //         'country' => 'required',
+    //         'mobile' => 'required|unique:students,phone',
+    //         'city' => 'required',
+    //         'address' => 'required',
+    //         'status' => 'required',
+    //         'interested' => 'required',
+    //         'qualification' => 'required',
+    //         // 'age' => 'required',
+    //         'password' => 'required|same:confirm_password|min:4',
+    //         'photo' => 'nullable|mimes:jpg,png,jpeg|max:2048',
+    //     ]);
+    //     //die($request);
+         
+
+    //     //Photo validation & upload 
+    //     if($request->photo != ''){
+    //      $request->validate([ 'photo' => 'required|mimes:jpg,png,jpeg|max:2048',]);
+    //      $Photo = time().'_'.$request->photo->getClientOriginalName().'.'.$request->photo->extension();
+    //      $request->photo->move(public_path('uploads'),$Photo);
+    //      }else{ $Photo = ''; }  
+
+    //      $EnquiryStatus = ENQ_Status::first();
+
+    //     //data insertion 
+    //     Student::create([
+    //         'name' => $request->name,
+    //         'email' => $request->email,
+    //         'dob' => $request->dob,
+    //         'country' => $request->country,
+    //         'country_code' => $request->pre,
+    //         'phone' => preg_replace('~^[0\D]++|\D++~', '', $request->mobile),
+    //         'passport_no' => $request->passport,
+    //         'city' => $request->city,
+    //         'address' => $request->address,
+    //         'entry_id' => Auth::user()->id,
+    //         'active_status' => $request->status,
+    //         'photo' => $Photo,
+    //         'password' => Hash::make($request->password),
+    //         'pass_text' => $request->password,
+    //         'enq_status' => $EnquiryStatus->id,
+    //         'last_degree' => $request->qualification,
+    //         'remarks' => $request->interested,
+    //     ]);
+
+    //     // Mail::to($request->email)->send(new WelcomeEmail($data));
+
+    //     return back()->with('s_success','Student Enquiry created successfully !');
+    // }
+
+    //something else part 
+
+    public function EnqStore(Request $request){
+        $data = Companyprofile::first();
+    
+        // inputs validation 
+        $request->validate([
             'name' => 'required',
-            'email' => 'email|unique:students',
+            'email' => 'email|unique:students,email,'.$request->Editid,
             'dob' => 'required',
             'country' => 'required',
-            'mobile' => 'required|unique:students,phone',
+            'mobile' => 'required|unique:students,phone,'.$request->Editid,
             'city' => 'required',
             'address' => 'required',
             'status' => 'required',
-            // 'age' => 'required',
-            'password' => 'required|same:confirm_password|min:4',
+            'interested' => 'required',
+            'qualification' => 'required',
+            'password' => $request->has('Editid') ? 'nullable|same:confirm_password|min:4' : 'required|same:confirm_password|min:4',
             'photo' => 'nullable|mimes:jpg,png,jpeg|max:2048',
         ]);
-        //die($request);
-         
-
-        //Photo validation & upload 
-        if($request->photo != ''){
-         $request->validate([ 'photo' => 'required|mimes:jpg,png,jpeg|max:2048',]);
-         $Photo = time().'_'.$request->photo->getClientOriginalName().'.'.$request->photo->extension();
-         $request->photo->move(public_path('uploads'),$Photo);
-         }else{ $Photo = ''; }  
-
-         
-
-        //data insertion 
-        Student::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'dob' => $request->dob,
-            'country' => $request->country,
-            'country_code' => $request->pre,
-            'phone' => preg_replace('~^[0\D]++|\D++~', '', $request->mobile),
-            'passport_no' => $request->passport,
-            'city' => $request->city,
-            'address' => $request->address,
-            'entry_id' => Auth::user()->id,
-            'active_status' => $request->status,
-            'photo' => $Photo,
-            'password' => Hash::make($request->password),
-            'pass_text' => $request->password,
-        ]);
-
-        // Mail::to($request->email)->send(new WelcomeEmail($data));
-
-        return back()->with('s_success','Student Enquiry created successfully !');
+    
+        // Check if Editid is provided
+        if($request->Editid) {
+            // Editing existing record
+    
+            // Find the student by ID
+            $student = Student::find($request->Editid);
+    
+            // Update existing record
+            $student->name = $request->name;
+            $student->email = $request->email;
+            $student->dob = $request->dob;
+            $student->country = $request->country;
+            $student->country_code = $request->pre;
+            $student->phone = preg_replace('~^[0\D]++|\D++~', '', $request->mobile);
+            $student->passport_no = $request->passport;
+            $student->city = $request->city;
+            $student->address = $request->address;
+            $student->active_status = $request->status;
+            $student->remarks = $request->interested;
+            $student->last_degree = $request->qualification;
+    
+            // Update password if provided
+            if($request->password) {
+                $student->password = Hash::make($request->password);
+                $student->pass_text = $request->password;
+            }
+    
+            // Update photo if provided
+            if($request->photo) {
+                // Delete old photo if exists
+                if ($student->photo) {
+                    // Get the path to the old photo
+                    $oldPhotoPath = public_path('uploads') . '/' . $student->photo;
+                    
+                    // Check if the old photo file exists before attempting to delete it
+                    if (file_exists($oldPhotoPath)) {
+                        // Delete the old photo file
+                        unlink($oldPhotoPath);
+                    }
+                }
+    
+                // Upload new photo
+                $photo = time().'_'.$request->photo->getClientOriginalName().'.'.$request->photo->extension();
+                $request->photo->move(public_path('uploads'), $photo);
+                $student->photo = $photo;
+            }
+    
+            $student->save();
+    
+            return back()->with('s_success', 'Student information updated successfully!');
+        } else {
+            // Inserting new record
+    
+            //Photo validation & upload 
+            $Photo = '';
+            if($request->photo != ''){
+                $request->validate([ 'photo' => 'required|mimes:jpg,png,jpeg|max:2048',]);
+                $Photo = time().'_'.$request->photo->getClientOriginalName().'.'.$request->photo->extension();
+                $request->photo->move(public_path('uploads'),$Photo);
+            }
+    
+            $EnquiryStatus = ENQ_Status::first();
+    
+            // Data insertion 
+            Student::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'dob' => $request->dob,
+                'country' => $request->country,
+                'country_code' => $request->pre,
+                'phone' => preg_replace('~^[0\D]++|\D++~', '', $request->mobile),
+                'passport_no' => $request->passport,
+                'city' => $request->city,
+                'address' => $request->address,
+                'entry_id' => Auth::user()->id,
+                'active_status' => $request->status,
+                'photo' => $Photo,
+                'password' => Hash::make($request->password),
+                'pass_text' => $request->password,
+                'enq_status' => $EnquiryStatus->id,
+                'last_degree' => $request->qualification,
+                'remarks' => $request->interested,
+            ]);
+    
+            return back()->with('s_success', 'Student Enquiry created successfully!');
+        }
     }
+    //something else end part 
 
     // this function is for student edite view page return 
 
@@ -131,6 +250,22 @@ class StudentController extends Controller
         $student = Student::find($id);
         return view('StudentEdite' , compact('student','cp','page','page_main'));
     }
+
+
+    //enq to student transfer 
+    public function enqTostudent($id){
+        $data = Student::find($id);
+        if($data->course_id == ''){
+              //delete photo
+            $data->verify = 1;
+            $data->save();
+            return back()->with('s_success','Enquiry Transfer to student !');
+        }else{
+            return back()->with('info','cannot find out the student !');
+        }
+    }
+
+    //end of the enq
 
 
     //this function is student information update section 
@@ -202,7 +337,7 @@ class StudentController extends Controller
     }
     
       // THIS SECTION IS FOR DELETE THE INFORMATION 
-     public function delete_student(Request $request , $id){
+    public function delete_student(Request $request , $id){
         $data = Student::find($id);
         if($data->course_id == ''){
               //delete photo
@@ -210,62 +345,59 @@ class StudentController extends Controller
             if($data->photo){ unlink(public_path('uploads/'.$data->photo)); }
             }
             $data->delete();
-            return redirect()->route('stu')->with('s_success','Student Deleted successfully !');
+            return back()->with('s_success','Enquiry Deleted successfully !');
         }else{
-            return redirect()->route('stu')->with('info','Cannot delte this student bcoz this student take one course !');
+            return back()->with('info','Cannot delte this student bcoz this student take one course !');
         }
       
-     }
+    }
      
      
      //THis section is for normal student enquery
      
-    public function enq_list(Request $request, $id = 1){
+   
+    public function enq_list(Request $request, $id = 0){
         $page_main = "Student";
         $page = "Enquiry";
         $cp = Companyprofile::first();
-        $idFromUrl = $request->route('id', 1);
+        $idFromUrl = $request->route('id', 0);
         // $students;
+
+        $EnquiryStatus = ENQ_Status::orderBy('id','asc')->get();
+
+        $studentsWithStatusCount = Student::with('enqStatus')
+        ->where('verify', '=', 0)
+        ->select('enq_status', \DB::raw('count(*) as student_count'))
+        ->groupBy('enq_status')
+        ->get();
         
         if(Auth::user()->hasRole('Admin')){
             //this is for rendomly all queris for admin
             $users = User::orderBy('id','desc')->get();
-            //this is other student info
-            $penstudent= Student::whereNotIn('verify', [1])->orderBy('id','desc')->get();
-            $verifystu = Student::whereNotNull('verified_by')->orderBy('id', 'desc')->get();
-            $notverifystu = Student::whereNull('verified_by')->orderBy('id', 'desc')->get();
-            $referstu = Student::whereNotNull('refer_to')->orderBy('id', 'desc')->get();
-            $coursestu = Student::whereNotNull('course_id')->orderBy('id', 'desc')->get();
-            $prostu = Student::whereNotIn('process_status', [0])->orderBy('id', 'desc')->get();
 
-            if($idFromUrl == 1){
+            $penstudent = Student::where('verify', '=', 0)->orderBy('id','desc')->get();
+            $enqstudent = Student::where('verify', '=', 0)->where('enq_status' ,'=' , $idFromUrl)->orderBy('id','desc')->get();
+         
+
+            if($idFromUrl == 0){
                 $students = $penstudent;
-            }elseif($idFromUrl == 2){
-                $students = $verifystu;
-            }elseif($idFromUrl == 3){
-                $students = $notverifystu;
-            }elseif($idFromUrl == 4){
-                $students = $referstu;
-            }elseif($idFromUrl == 5){
-                $students = $coursestu;
-            }elseif($idFromUrl == 6){
-                $students = $prostu;
-            }
+            }else{
+                $students = $enqstudent;
+            }   
 
+          
             // die($students);
 
-
-            }else{
-                //this is for user generated queries that spacefiy a perticular user
-             $users = "";
-             $students = Student::where('entry_id' , '=' , Auth::user()->id)->whereNotIn('verify', [1])->orderBy('id','desc')->get(); 
-            }
-
-         
+        }else{
+            //this is for user generated queries that spacefiy a perticular user
+            $users = "";
+            $students = Student::where('entry_id' , '=' , Auth::user()->id)->whereNotIn('verify', [1])->orderBy('id','desc')->get(); 
+        }
              
-        return view ('new.EnqueryStudent' , compact('idFromUrl','students','penstudent','verifystu','notverifystu','referstu','coursestu','prostu','users','cp','page_main','page'));
+           return view ('new.EnqueryStudent' , compact('idFromUrl','students','penstudent','studentsWithStatusCount','EnquiryStatus','users','cp','page_main','page'));
          
     }
+
     //this is the student enquiry filter 
     public function enq_filter(Request $request){
         
@@ -336,10 +468,10 @@ class StudentController extends Controller
 
             
               return view('EnqueryStudent', compact('students','users','cp','page_main','page'));
-       }
+    }
        
      // THIS SECTION IS FOR delete the enquiry list
-     public function enq_delete_student(Request $request , $id){
+    public function enq_delete_student(Request $request , $id){
         $data = Student::find($id);
         if($data->verified_by == null ){
               //delete photo
@@ -352,18 +484,17 @@ class StudentController extends Controller
             return back()->with('info','Cannot delete this enquiry bcoz this student is varified !');
         }
       
-     }
+    }
      
      //student verify function 
-     public function stu_verify(Request $request , $sid, $id){
-         
-         $student = Student::find($sid);
-         $student->verified_by = $id;
+     public function EnqVerify(Request $request , $id){ 
+         $student = Student::find($id);
+         $student->verified_by = Auth::user()->id;
          $student->save();
-         return back()->with('s_success','student verified successfully !');
+         return back()->with('s_success','Enquiry verified successfully !');
      }
      //student refer function
-     public function stu_refer(Request $request){
+    public function stu_refer(Request $request){
          $student = Student::find($request->student_id);
          if($student->verified_by){
            $student->refer_to = $request->users;
@@ -378,6 +509,30 @@ class StudentController extends Controller
      //Students enquery ends 
     
     //THIS SECTION IS RETURN THE VIEW TEMPLATES 
+
+    //enquiry record founding 
+    public function fetchenqRecord($id){
+        $record = Student::find($id);
+        $Enq = ENQ_Status::latest()->first();
+        return response()->json(['success' => true, 'student' => $record, 'status' => $Enq, ]);
+    }
+    //end of the record finding 
+
+    //this is the function for changing the staus of the enquiry 
+    public function ChangeEnqStatus($id, $status){
+        $record = Student::find($id);
+
+        // Update the status attribute with the new status ID
+        $record->enq_status = $status;
+    
+        // Save the changes to the database
+        $record->save();
+
+        return back()->with('s_success','Enquiry change the status successfully !');
+    }
+
+    //end of the changeing staus of enquiry 
+
     public function stu_view(Request $request , $id){
         $page_main = "Student";
         $page = "Student Profile";
@@ -411,6 +566,8 @@ class StudentController extends Controller
         $status = Status::orderby('id','asc')->get(); 
         $emgsstatus = EMGS_Status::orderby('id','asc')->get(); 
         $paymentstatus = StudentPaymentStatus::orderby('id','asc')->get();
+
+
              //This section is for student status figureout in persantage
             
             // Get all available statuses
@@ -447,8 +604,8 @@ class StudentController extends Controller
            // Get all available emergency statuses
            $paymentStatuses = StudentPaymentStatus::pluck('status')->toArray();
            // Calculate emergency completion percentage
-           if ($student->payment_status != null && $student->payment != null) {
-               $paymentStatusIndex = array_search($student->payment->status, $paymentStatuses);
+           if ($student->payment_status != null) {
+               $paymentStatusIndex = array_search($student->studentPaymentStatus->status, $paymentStatuses);
                $payment_state = round(($paymentStatusIndex + 1) / count($paymentStatuses) * 100);
            } else {
                $payment_state = 0;
@@ -457,9 +614,13 @@ class StudentController extends Controller
            $payment_state = filter_var($payment_state, FILTER_SANITIZE_NUMBER_INT);
    
         //End of the payment status section
+
+        //compose mail section 
+        $composeMails = StudentComposeMail::where('student_id','=',$id)->orderby('id','desc')->get();
         
-        return view('new.StudentView' , compact('student','course','cp','student_payments','payment_sum','commission_sum','student_pay_sum','stu_payment','student_commission','page_main','page','student_doc','paytype','due_state','emg_state','payment_state','student_qua','courses_suggested','status','emgsstatus','paymentstatus','activitiies'));
+        return view('new.StudentView' , compact('student','course','cp','student_payments','payment_sum','commission_sum','student_pay_sum','stu_payment','student_commission','page_main','page','student_doc','paytype','due_state','emg_state','payment_state','student_qua','courses_suggested','status','emgsstatus','paymentstatus','activitiies','composeMails'));
     }
+
 
     //this is the qualification section
     public function quaifi_store(Request $request){
@@ -541,50 +702,63 @@ class StudentController extends Controller
                 return back()->with(['info'=>'Student must have select any course !','active_tab' => 2]);
              }   
       }
+
+      
+      public function student_list_process(Request $request , $id){
+            $course = Student::find($id);
+          
+            if(!empty($course->course_id)){
+               $course->process_status = 1;
+               $course->save();
+               return back()->with(['s_success'=>'Student go for process successfully !']);
+             }else{
+                return back()->with(['info'=>'Student must have select any course !']);
+             }   
+      }
     
-    //THIS IS FOR STUDENT APPLICANT PROCESS
-    public function applicant_process(){
-        $page_main = "Applicant process";
-        $page = "Student List";
-        $cp = Companyprofile::find(1);
-        if(Auth::user()->hasRole('Admin')){
-        $student = Student::where("process_status", "=", 1)->orderby('id','desc')->get();
-        }else{
-        $student = Student::where('refer_to' , '=' , Auth::user()->id)->where("process_status", "=", 1)->orderby('id','desc')->get();    
+        //THIS IS FOR STUDENT APPLICANT PROCESS
+        public function applicant_process(){
+            $page_main = "Applicant process";
+            $page = "Student List";
+            $cp = Companyprofile::find(1);
+            if(Auth::user()->hasRole('Admin')){
+            $student = Student::where("process_status", "=", 1)->orderby('id','desc')->get();
+            }else{
+            $student = Student::where('refer_to' , '=' , Auth::user()->id)->where("process_status", "=", 1)->orderby('id','desc')->get();    
+            }
+            return view('ApplicantProcess' , compact('student','cp','page','page_main'));
         }
-        return view('ApplicantProcess' , compact('student','cp','page','page_main'));
-    }
 
-    //THIS IS FOR APPLICAN STATUS  VIEW PARTS
-    public function change_status(Request $request , $id){
-        $page_main = "Applicant process";
-        $page = "Status update";
-        $cp = Companyprofile::first();
-        $student = Student::find($id);
-        $status = Status::all();
-        $emg_status = EMGS_Status::all();
-        $payment_status = StudentPaymentStatus::all();
-        return view('ApplicantProcessView' , compact('student','status','emg_status','payment_status','cp','page','page_main'));
-    }
+        //THIS IS FOR APPLICAN STATUS  VIEW PARTS
+        public function change_status(Request $request , $id){
+            $page_main = "Applicant process";
+            $page = "Status update";
+            $cp = Companyprofile::first();
+            $student = Student::find($id);
+            $status = Status::all();
+            $emg_status = EMGS_Status::all();
+            $payment_status = StudentPaymentStatus::all();
+            return view('ApplicantProcessView' , compact('student','status','emg_status','payment_status','cp','page','page_main'));
+        }
 
-    //THIS SECTION IS FOR UPDATE THE STATUS SECTION 
+        //THIS SECTION IS FOR UPDATE THE STATUS SECTION 
 
-    public function update_status(Request $request){
-        $student = Student::find($request->student_id);
-        $student->status_id = $request->status;
-        $student->save();
-        
-        // $data = Companyprofile::first();
-        
-        // if(!Mail::to($student->email)->send(new StatusUpdateEmail($data))){
-        //     return back()->with('error','something wrong');
-        // }
-        
-        return back()->with([ 's_success' => 'Student status was changed successfully  !', 'active_tab' => 2]);
-    }
+        public function update_status(Request $request){
+            $student = Student::find($request->student_id);
+            $student->status_id = $request->status;
+            $student->save();
+            
+            // $data = Companyprofile::first();
+            
+            // if(!Mail::to($student->email)->send(new StatusUpdateEmail($data))){
+            //     return back()->with('error','something wrong');
+            // }
+            
+            return back()->with([ 's_success' => 'Student status was changed successfully  !', 'active_tab' => 2]);
+        }
     
     
-    //Update the EMGS status
+       //Update the EMGS status
         public function update_emgs(Request $request){
             $student = Student::find($request->student_id);
             $student->emg_status = $request->status;
@@ -595,7 +769,7 @@ class StudentController extends Controller
             return back()->with([ 's_success' => 'Student EMGS status was changed successfully  !', 'active_tab' => 2]);
         }
     
-    // payment status update 
+       // payment status update 
         public function update_payment(Request $request){
             $student = Student::find($request->student_id);
             $student->payment_status = $request->status;
@@ -773,7 +947,7 @@ class StudentController extends Controller
     //end of the notification
 
     //delete notification
-        public function delete_notification(Request $request , $id){
+    public function delete_notification(Request $request , $id){
             $data = Student::find($id);
             $data->notify ='';
             $data->save();
@@ -805,11 +979,13 @@ class StudentController extends Controller
 
     //this is the information all about the fetch processed student information 
     public function fetchstuRecord($id){
-
         $record = Student::find($id);
         $status = $record->status ? $record->status->id : null;
         $emgs = $record->emgs ? $record->emgs->id : null;
-        $payment_status = $record->studentPaymentStatus ? $record->studentPaymentStatus->id : null;        
+        $payment_status = $record->studentPaymentStatus ? $record->studentPaymentStatus->id : null; 
+        
+        $enquiryStatus = ENQ_Status::all();
+
         return response()->json(['success' => true, 'student' => $record, 'status' => $status , 'emgs' => $emgs , 'payment_status' => $payment_status ]);
     }
 
@@ -826,6 +1002,18 @@ class StudentController extends Controller
 
         return back()->with(['s_success'=>'All status saved successfully.']);
 
+    }
+
+    public function stu_process_status(Request $request){
+
+        $data = Student::find($request->studentId);
+        $data->status_id = $request->p_status ?? null;
+        $data->emg_status = $request->emgs_status ?? null;
+        $data->payment_status = $request->payment_status ?? null;
+
+        $data->save();
+
+        return back()->with(['s_success'=>'All status saved successfully.','active_tab' => 2]);
     }
 
 

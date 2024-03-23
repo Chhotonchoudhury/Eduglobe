@@ -39,6 +39,7 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password')->nullable();
 
+            $table->string('last_degree')->nullable(true);
             $table->text('remarks')->nullable(true);
             $table->string('passport_no')->nullable(true);
             $table->text('doc')->nullable(true);

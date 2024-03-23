@@ -20,6 +20,7 @@ class FrontendController extends Controller
 {
     //
     public function Index(){
+        // return view('email.testMail');
         $header = Web_header::first();
         $about = Web_about::first();
         $work = Web_work::first();

@@ -11,7 +11,7 @@
     <link rel="icon" type="image/x-icon"
         href="{{ (!empty($cp->logo)) ? asset('uploads/'.$cp->logo):asset('assets/assets/img/favicon.ico')}}" />
     @include('new_layouts.partials.header')
-
+    <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
 </head>
 
 <body>
@@ -226,7 +226,7 @@
                                 <div>
                                     <a popaction="action=composemail&queryId=100004"><button type="button"
                                             class="btn btn-secondary btn-lg waves-effect waves-light btn-primary-gray"
-                                            style="margin-bottom:10px;">
+                                            style="margin-bottom:10px;" data-toggle="modal" data-target=".compose-mail">
 
                                             <i class="fa fa-envelope-o" aria-hidden="true"></i> &nbsp;Email</button></a>
                                 </div>
@@ -1568,14 +1568,79 @@
                                                     <div class="tab-pane fade {{ $activeTab === 5 ? 'active show' : '' }}"
                                                         id="mails-tab">
 
-                                                        <div>
-                                                            <h4 class="mt-0 header-title"
-                                                                style="border-bottom:0px; overflow:hidden;">
-                                                                &nbsp;Malis
+                                                        <div style="padding:2px;">
 
 
-                                                            </h4>
+                                                            <div class="btn-toolbar p-3" role="toolbar"
+                                                                style="background-color: #cfd7df42;">
+                                                                <div class="btn-group mr-2 mb-2 mb-sm-0"
+                                                                    style="overflow:visible;">
+                                                                    <button type="button" data-toggle="modal"
+                                                                        data-target=".compose-mail"
+                                                                        class="btn btn-primary waves-light waves-effect"><i
+                                                                            class="fa fa-envelope-o"></i>
+                                                                        &nbsp;Compose</button>
+                                                                </div>
+                                                                <div class="btn-group mr-2 mb-2 mb-sm-0">
+                                                                    <button
+                                                                        style="background-color: #fff; border: 1px solid #ddd; font-size:12px;"
+                                                                        type="button" class="btn btn-light waves-effect"
+                                                                        data-toggle="modal"
+                                                                        data-target=".compose-mail"><i
+                                                                            class="fa fa-info-circle"></i>
+                                                                        {{ $unv->email }}</button>
+                                                                </div>
 
+                                                            </div>
+                                                            <style>
+                                                                .mailsent .fa-arrow-circle-left {
+                                                                    font-size: 18px;
+                                                                    color: #f47836;
+                                                                    padding-right: 7px;
+                                                                    position: absolute;
+                                                                    top: 17px;
+                                                                    left: 3px;
+                                                                }
+
+                                                                .message-list li {
+                                                                    border-bottom: 1px solid #e6e6e6;
+                                                                }
+                                                            </style>
+
+                                                            <ul class="message-list">
+
+                                                                @foreach($composeMails as $row)
+
+                                                                <li onclick="">
+                                                                    <div class="col-mail col-mail-1">
+
+                                                                        <a class="title mailsent  show-email"
+                                                                            style=" cursor:pointer; left: 0px; padding-left:28px;"
+                                                                            data-id="{{ $row->id }}"><i
+                                                                                class="fa fa-arrow-circle-left"
+                                                                                aria-hidden="true"></i>
+                                                                            {{ $row->recipient_email }}</a>
+                                                                    </div>
+                                                                    <div class="col-mail col-mail-2">
+                                                                        <a class="title mailsent show-email"
+                                                                            style="cursor:pointer;"
+                                                                            data-id="{{ $row->id }}"><span
+                                                                                class="badge-warning badge mr-2"></span>{{
+                                                                            $row->subject }} </a>
+                                                                        <div class="date"
+                                                                            style="padding-left:10px; font-size:12px;">
+                                                                            {{
+                                                                            \Carbon\Carbon::parse($row->created_at)->format('d
+                                                                            F Y h:i A') }}
+                                                                        </div>
+                                                                    </div>
+                                                                </li>
+                                                                @endforeach
+
+
+
+
+                                                            </ul>
                                                         </div>
 
 
@@ -1976,9 +2041,6 @@
                 </div><!-- /.modal-content -->
             </div>
             <!---end of the model of updte --->
-
-
-
 
             <!---this is the student information edite model -->
             <div class="modelnew modal right fade UniEditeModel" tabindex="-1" role="dialog"
@@ -3310,6 +3372,165 @@
 
             <!---end of the student edite model--->
 
+            <!---This is the compose mail model section ---->
+            <div class="modal fade bs-example-modal-center compose-mail" tabindex="-1" role="dialog"
+                aria-labelledby="mySmallModalLabel" id="">
+                <div class="modal-dialog" role="document" style="max-width: 900px; width: 900px;">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title mt-0" id="poptitle">Compose Email</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">×</span>
+                            </button>
+                        </div>
+                        <div class="modal-body" id="popcontent">
+
+
+                            <form class="custom-validation" action="{{ route('mail.university') }}" id="mailForm"
+                                method="post" enctype="multipart/form-data">
+                                @csrf
+                                {{-- <div style="margin-bottom:20px; color:#000; font-size:13px;"><span
+                                        style="color:#999999;">From</span>
+                                    crm@travbizz.com</div> --}}
+                                <div class="media mb-4"
+                                    style="padding-bottom: 10px; border-bottom: 1px solid #dedede; margin-bottom: 30px !important; border-top: 1px solid #dedede; padding-top: 10px; padding-left: 10px; background-color: #f5f5f5;">
+                                    <img class="d-flex mr-3 rounded-circle avatar-sm"
+                                        src="{{ (!empty($unv->logo)) ? asset('uploads/'.$unv->logo.'') : 'https://bootdey.com/img/Content/avatar/avatar7.png' }}"
+                                        alt="Generic placeholder image" style="width: 40px;">
+                                    <div class="media-body">
+                                        <h5 class="font-size-14" style="margin-bottom: 0px;margin-top: 0px;">{{
+                                            $unv->name }}</h5>
+                                        <small class="text-muted" style=" font-size:13px;">{{ $unv->email }}</small>
+                                    </div>
+                                </div>
+                                <div class="row spdiv">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label for="validationCustom02">CC (optional)</label>
+                                            <input type="text" class="form-control" name="cc" value=""
+                                                autocomplete="off">
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row spdiv">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label for="validationCustom02">Subject</label>
+                                            <input type="text" class="form-control" name="subject" id="subject" value=""
+                                                autocomplete="off" required>
+
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div class="row spdiv">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label for="validationCustom02">Email Body</label>
+                                            <textarea name="body" class="form-control" id="details" rows="10" cols="80"
+                                                required></textarea>
+
+                                            <script type="text/javascript">
+                                                CKEDITOR.replace('details');
+                                            </script>
+
+                                        </div>
+                                    </div>
+
+                                </div>
+
+
+
+
+
+                                <div class="row spdiv">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label for="validationCustom02">Attachment (optional)</label>
+                                            <input name="attachments[]" id="attachments" multiple
+                                                accept=".pdf, .doc, .docx" class="form-control" type="file">
+                                        </div>
+                                    </div>
+                                </div>
+
+
+
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-primary" id="submitButton"
+                                        onclick="submitForm()">Send
+                                        Mail </button>
+                                </div>
+
+                                <input type="hidden" name="UniversityId" value="{{ $unv->id }}">
+
+                            </form>
+                            <script>
+                                function submitForm() {
+                                    var subjectField = document.getElementById('subject');
+                                    var detailsField = document.getElementById('details');
+                                    var submitButton = document.getElementById('submitButton');
+                            
+                                    // Check if the required fields are filled
+                                    if (subjectField.checkValidity() && detailsField.checkValidity()) {
+                                        submitButton.innerText = 'Mail sending...';
+                                        submitButton.disabled = true;
+                                        document.getElementById('mailForm').submit();
+                                    }
+                                }
+                            </script>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!----End of the section ----->
+
+            <!---this is the model section for showing the email part--->
+            <div class="modal fade show-modal">
+                <div class="modal-dialog modal-dialog-centered " style="max-width: 800px; width: 800px;">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title mt-0" id="poptitle">Email</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">×</span>
+                            </button>
+                        </div>
+                        <div class="modal-body" id="popcontent">
+
+                            <h5 class="font-size-14" style="margin-bottom: 0px;margin-top: 0px;" id="tem-name"></h5>
+                            <small class="text-muted" style="font-size: 13px;" id="tem-email"></small>
+
+                            {{-- <div style="padding:10px 0px; border-bottom:1px solid #ddd; font-size:16px;">
+                                <strong>Recipient Email : </strong> <span>Stage Contact</span>
+                            </div> --}}
+
+                            <div
+                                style="padding:10px 0px; border-bottom:1px solid #ddd; font-size:16px; margin-bottom:30px;">
+                                <strong>Email Subject : </strong><span id="tem-subject"></span>
+                            </div>
+
+                            <p id="tem-details">
+
+                            </p>
+
+                            <div style="padding:10px 0px; border-bottom:1px solid #ddd; font-size:16px;"
+                                id="tem-attachments">
+
+                            </div>
+
+
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!---end of the model part ---->
+
 
 
         </div>
@@ -3840,7 +4061,60 @@
       
         //end of the update case
 
+       //ajax request for get the data 
+        $(document).ready(function() {
+            $('.show-email').on('click', function(e) {
+                e.preventDefault();
 
+                // Get the record ID from the data-id attribute
+                var recordId = $(this).data('id');
+                // alert(recordId);
+                
+                // AJAX request to fetch the record data based on the ID
+                $.ajax({
+                    url: "{{ url('/university-mail-compose-show') }}" + "/" + recordId, // Replace with your actual URL
+                    type: 'GET',
+                    // Use the appropriate HTTP method
+                    dataType: 'json', // Expect JSON response
+                    success: function(response) {
+                        if (response.success) {
+                                $('#tem-name').html('');
+                                $('#tem-email').html('');
+                                $('#tem-subject').html('');
+                                $('#tem-details').html('');
+                                $('#tem-attachments').html('');
+
+                                //student info section 
+                                $('#tem-name').append(response.university);
+                                $('#tem-email').append(response.data.recipient_email);
+                                $('#tem-subject').append(response.data.subject);
+                                $('#tem-details').append(response.data.body);
+
+                                // Iterate through attachments and append links
+                                var attachmentsArray = JSON.parse(response.data.attachments);
+
+                                $.each(attachmentsArray, function(index, attachment) {
+                                    var fileName = attachment.split("/").pop();
+                                    var attachmentUrl = "{{ asset('storage/custom_attachments') }}/" + fileName;
+                                    var attachmentLink = '<strong>Attachment ' + (index + 1) + ': </strong><a href="' + attachmentUrl + '" target="_blank">View Attachment</a><br>';
+                                    $('#tem-attachments').append(attachmentLink);
+                                });
+                    
+                                // $('#name').val(response.name);
+                                $('.show-modal').modal('show');
+
+                            
+                            
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        // Handle AJAX errors
+                        console.error('AJAX request failed:', error);
+                    }
+                });
+            });
+        });
+      //end the ajax request
        
 
     </script>

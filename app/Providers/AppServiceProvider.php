@@ -28,25 +28,52 @@ class AppServiceProvider extends ServiceProvider
     {
         //
         Paginator::useBootstrap();
-        $mailSetting = MailSetting::first();
-        if($mailSetting){
-            $data = [
-                'transport'   => $mailSetting->mail_transport,
-                'host'        => $mailSetting->mail_host,
-                'port'        => $mailSetting->mail_port,
-                'encryption'  => $mailSetting->mail_encryption,
-                'username'    => $mailSetting->mail_username,
-                'password'    => $mailSetting->mail_password,
-                'from'        =>[
-                    'address' => $mailSetting->mail_from,
-                    'name' => $mailSetting->mail_name,
-                ],
+        // $mailSetting = MailSetting::first();
+        // if($mailSetting){
+        //     $data = [
+        //         'transport'   => $mailSetting->mail_transport,
+        //         'host'        => $mailSetting->mail_host,
+        //         'port'        => $mailSetting->mail_port,
+        //         'encryption'  => $mailSetting->mail_encryption,
+        //         'username'    => $mailSetting->mail_username,
+        //         'password'    => $mailSetting->mail_password,
+        //         'from'        =>[
+        //             'address' => $mailSetting->mail_from,
+        //             'name' => $mailSetting->mail_name,
+        //         ],
                 
-            ];
-            // dd($data);
-            Config::set('mail',$data);
-            // dd(config('custom_mail_config'));
-        }
+        //     ];
+        //     // dd($data);
+        //     if (!in_array(null, $data, true)) {
+        //         Config::set('mail', $data);
+        //     } else {
+        //         // Log or handle the case where values are null
+        //         // ...
+        //     }
+        //     // dd(config('custom_mail_config'));
+        //     dd(config('mail'));
+        // }
+
+
+        // $mailSetting = MailSetting::first();
+
+        // if ($mailSetting) {
+        //     $data = [
+        //         'driver' => $mailSetting->mail_transport,
+        //         'host' => $mailSetting->mail_host,
+        //         'port' => $mailSetting->mail_port,
+        //         'encryption' => $mailSetting->mail_encryption,
+        //         'username' => $mailSetting->mail_username,
+        //         'password' => $mailSetting->mail_password,
+        //         'from' => [
+        //             'address' => $mailSetting->mail_from,
+        //             'name' => $mailSetting->mail_name,
+        //         ],
+        //     ];
+
+        //     Config::set('mail', $data);
+        //     // dd(config('mail'));
+        // }
         
     }
 }

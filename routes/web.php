@@ -218,8 +218,6 @@ Route::middleware([ 'auth' ])->controller(UniversityController::class)->group(fu
  Route::get('/university-delete/{id}', 'delete_uni')->name('delete.uni');
 
  Route::post('/uni-course-update', 'Course_update')->name('cor.update.uni');
-
-
  Route::post('/uni-student-update', 'Student_update')->name('stu.update.uni');
 
  //university course delete
@@ -307,6 +305,10 @@ Route::middleware([ 'auth' ])->controller(SettingsController::class)->group(func
  Route::post('/payment-status-store', 'payment_store')->name('payment.store.status');
  Route::get('/payment-status-delete/{id}', 'payment_delete_status')->name('payment.delete.status');
 
+ //rnquiry status 
+ Route::post('/enquiry-status-store', 'enquiry_status_store')->name('enquiry.store.status');
+ Route::get('/enquiry-status-delete/{id}', 'enquiry_delete_status')->name('enquiry.delete.status');
+
  Route::post('/user-created', 'user_store')->name('userStore');
 
  //this is the roles and permission entry
@@ -351,12 +353,20 @@ Route::middleware([ 'auth' ])->controller(MailController::class)->group(function
     Route::get('/mail-template-show/{id}', 'ShowMailTemplate');
     //endof the mail parts
 
-    
-
-    //mail 
+    //mail settings part
 
     Route::get('/mail-settings', 'mailsettings')->name('mail.settings');
     Route::patch('/mail-setting-update', 'mailsettingsUpdate')->name('mail.settings.update');
+
+    //this is the part for student mailing system 
+    Route::post('/mail-to-student', 'EmailForStudent')->name('mail.student');
+    Route::post('/mail-to-university', 'EmailForUniversity')->name('mail.university');
+
+    //composed mails showing 
+    Route::get('/student-mail-compose-show/{id}', 'ShowStudentMails');
+    ///composed mails showing for university
+    Route::get('/university-mail-compose-show/{id}', 'ShowUniversityMails');
+
 });
 
 //end of the sections 
@@ -372,6 +382,12 @@ Route::middleware([ 'auth' ])->controller(StudentController::class)->group(funct
  Route::post('/student-refer', 'stu_refer')->name('verify.stu');
  Route::get('/enquery-filter', 'enq_filter')->name('enq.filter');
 
+ Route::get('/fetch-enq-record/{id}', 'fetchenqRecord')->name('fetch.enq.record');
+ 
+
+ Route::get('/enq-status-changed/{id}/{status}', 'ChangeEnqStatus')->name('change.enq.status');
+ Route::get('/enq-verify/{id}', 'EnqVerify')->name('enq.verify');
+
  //enquiry delete section
  Route::get('/enq-delete/{id}', 'enq_delete_student')->name('enq.delete');
 
@@ -381,16 +397,19 @@ Route::middleware([ 'auth' ])->controller(StudentController::class)->group(funct
  Route::get('/processed-students', 'process_stu')->name('process.stu');
  Route::get('/processed-stu-record/{id}', 'fetchstuRecord');
  Route::post('/processed-status-update', 'process_status')->name('process.status');
+
+ Route::post('/student-processed-status-update', 'stu_process_status')->name('stu.process.status');
  //end of the routes 
 
  Route::get('/student', 'index')->name('stu');
- Route::post('/student-store', 'store')->name('store.stu');
+ Route::post('/student-store', 'EnqStore')->name('store.stu');
 
  Route::get('/student-edite/{id}', 'edite')->name('edite.stu');
  Route::post('/student-update', 'update')->name('update.stu');
  Route::get('/student-delete/{id}', 'delete_student')->name('delete.stu');
 
  Route::get('/student-view/{id}', 'stu_view')->name('view.stu');
+ Route::get('/enq-to-student/{id}', 'enqTostudent')->name('enq.to.student');
 
  //student qualification route
  Route::post('/student-qualification-store', 'quaifi_store')->name('qualification.stu');
@@ -409,6 +428,9 @@ Route::middleware([ 'auth' ])->controller(StudentController::class)->group(funct
 
  //this all route is for process
  Route::get('/student-process/{id}', 'student_process')->name('process.student');
+
+ Route::get('/student-list-process/{id}', 'student_list_process')->name('process.student.list');
+
 
  //ths is all the applicent process
  Route::get('/applicant-process', 'applicant_process')->name('applicant.process');

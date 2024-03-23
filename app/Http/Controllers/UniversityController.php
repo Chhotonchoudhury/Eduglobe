@@ -16,6 +16,7 @@ use App\Models\Commission;
 use App\Models\Companyprofile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use App\Models\UniversityComposeMail;
 
 class UniversityController extends Controller
 {
@@ -597,8 +598,11 @@ class UniversityController extends Controller
                 $unipayment = $commissions;
             }
 
+            //compose mail section 
+            $composeMails = UniversityComposeMail::where('university_id','=',$id)->orderby('id','desc')->get();
 
-            return view('new.UniView',compact('unv','paytype','course','page_main','page','cp','deeg_total','stu_total','cou','cor_total','phd_degrees','master_degrees','bachelor_degrees','other_degrees','stu','commission_total','payment_total','stupaymet_total','category','dataFromUrl','sumCom','sumPay','unipayment','paymentDataFromUrl'));
+
+            return view('new.UniView',compact('unv','paytype','course','page_main','page','cp','deeg_total','stu_total','cou','cor_total','phd_degrees','master_degrees','bachelor_degrees','other_degrees','stu','commission_total','payment_total','stupaymet_total','category','dataFromUrl','sumCom','sumPay','unipayment','paymentDataFromUrl','composeMails'));
         }
 
         //this is for return the edite page with data

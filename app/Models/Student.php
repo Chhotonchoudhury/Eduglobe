@@ -80,6 +80,10 @@ class Student extends Authenticatable implements MustVerifyEmail
     public function studentPaymentStatus(){
         return $this->belongsTo(StudentPaymentStatus::class , 'payment_status');
     }
+
+    public function EnqStatus(){
+        return $this->belongsTo(ENQ_Status::class , 'payment_status');
+    }
     
      public function payment(){
         return $this->belongsTo(Payment_status::class , 'StudentPaymentStatus');

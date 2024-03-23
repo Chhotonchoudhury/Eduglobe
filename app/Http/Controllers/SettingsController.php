@@ -18,6 +18,7 @@ use App\Models\Student;
 use App\Models\Payment;
 use App\Models\Commission;
 use App\Models\Student_Payment;
+use App\Models\ENQ_Status;
 
 class SettingsController extends Controller
 {
@@ -33,6 +34,7 @@ class SettingsController extends Controller
     $status = Status::orderby('id','asc')->get();
     $emgs_status = EMGS_Status::orderby('id','asc')->get();
     $payment_status = StudentPaymentStatus::orderby('id','asc')->get();
+    $enquiry_status = ENQ_Status::orderby('id','asc')->get();
 
     $users = User::where('id', '!=', Auth::user()->id)->orderBy('id', 'DESC')->get();
     $roles=Role::get();
@@ -57,7 +59,7 @@ class SettingsController extends Controller
 
     // $courses = Course::orderby('id','desc')->get();
     // $university = University::all();
-    return view('new.Settings', compact('page','cp','page_main','category','Paymenttypes','status','emgs_status','payment_status','users','roles','permission','role_permissions'));
+    return view('new.Settings', compact('page','cp','page_main','category','Paymenttypes','status','emgs_status','payment_status','enquiry_status','users','roles','permission','role_permissions'));
  }
 
  public function category_store(Request $request)
@@ -302,6 +304,31 @@ public function payment_delete_status(Request $request , $id){
     $data = StudentPaymentStatus::find($id);
     $data->delete();
     return back()->with(['s_success'=>'Payment Status Deleted successfully !','active_tab' => 4]);
+}
+
+//enquiry status 
+public function enquiry_status_store(Request $request){
+    // inputs validation validation 
+    $request->validate([ 'status' => ['required'],]);
+   //die($request);
+
+   //data insertion 
+   ENQ_Status::create([
+       'status' => $request->status,
+       'entry_id' => Auth::user()->id,
+   ]);
+
+   return back()->with(['s_success'=>'Enquiry Status created successfully !','active_tab' => 4]);
+}
+
+public function enquiry_delete_status(Request $request , $id){
+
+    if (Student::where('enq_status', $id)->exists()) {
+        return back()->with(['s_success'=>'Enquiry Status cannot be deleted because it is associated with one or more students.', 'active_tab' => 4]);
+    }
+    $data = ENQ_Status::find($id);
+    $data->delete();
+    return back()->with(['s_success'=>'Enquiry Status Deleted successfully !','active_tab' => 4]);
 }
 
 //end of the all status methods

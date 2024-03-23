@@ -210,10 +210,13 @@
                           <td width="1%">{{$row->email}}</td>
                           <td width="1%">{{$row->country}},{{$row->city}}</td>
                           <td width="1%">
-                            @if($row->process_status == 0)
-                            <span class="badge badge-danger">No active</span>
+                            @if($row->course_id != '')
+                            <a onclick="return confirm('Are you sure to make this student under processing..?')"
+                              href="{{ route('process.student.list', $row->id) }}">
+                              <button type="button" class="btn-success text-white">Process</button>
+                            </a>
                             @else
-                            <span class="badge badge-success">Processing</span>
+                            <span class="badge badge-danger">Don't select any course</span>
                             @endif
                           </td>
                           <td width="12%" align="left">

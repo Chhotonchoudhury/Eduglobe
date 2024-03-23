@@ -401,6 +401,8 @@
 
                     <div class="modal-body" id="popcontent2">
 
+
+
                         <a>
                             <div class="media" style="margin-left: 2%;">
                                 <div class="mr-3 align-self-center">
@@ -429,6 +431,8 @@
                             </div>
                         </a>
 
+
+
                         <hr>
                         <style>
                             /* Custom styles for the select elements */
@@ -450,27 +454,48 @@
                         <table style="border-collapse: collapse; width: 100%;">
                             <tr>
                                 <td style="padding: 5; width: 33.33%;">
-                                    <label style="margin-bottom: 0;">Processing status</label>
+                                    <div class="card-body widget p-2 processingStatus">
+                                        <div class="col-lg-12 circlechart text-center" data-percentage="">
+                                            completed
+                                        </div>
+                                        <p class="font-17 text-center mb-0 text-muted">
+                                            <a class="text-primary">10%</a>Processing Status
+                                        </p>
+                                    </div>
                                     <select class="custom-select" id="p_status" name="p_status">
-                                        <option value="">select option</option>
+                                        <option value="">Processing status</option>
                                         @foreach($status as $row)
                                         <option value="{{ $row->id }}">{{ $row->status }}</option>
                                         @endforeach
                                     </select>
                                 </td>
                                 <td style="padding: 5; width: 33.33%;">
-                                    <label style="margin-bottom: 0;">EMGS status</label>
+                                    <div class="card-body widget p-2 emgsStatus">
+                                        <div class="col-lg-12 circlechart text-center" data-percentage="">
+                                            completed
+                                        </div>
+                                        <p class="font-17 text-center mb-0 text-muted">
+                                            <a class="text-primary">10%</a>Emgs Status
+                                        </p>
+                                    </div>
                                     <select class="custom-select" id="emgs_status" name="emgs_status">
-                                        <option value="">select option</option>
+                                        <option value="">EMGS status</option>
                                         @foreach($emgs_status as $row)
                                         <option value="{{ $row->id }}">{{ $row->status }}</option>
                                         @endforeach
                                     </select>
                                 </td>
                                 <td style="padding: 5; width: 33.33%;">
-                                    <label style="margin-bottom: 0;">Payment status</label>
+                                    <div class="card-body widget p-2 paymentStatus">
+                                        <div class="col-lg-12 circlechart text-center" data-percentage="">
+                                            completed
+                                        </div>
+                                        <p class="font-17 text-center mb-0 text-muted">
+                                            <a class="text-primary">10%</a>Payment Status
+                                        </p>
+                                    </div>
                                     <select class="custom-select" id="payment_status" name="payment_status">
-                                        <option value="">select option</option>
+                                        <option value="">Payment status</option>
                                         @foreach($payment_status as $row)
                                         <option value="{{ $row->id }}">{{ $row->status }}</option>
                                         @endforeach
@@ -482,6 +507,8 @@
                     </div>
 
                     <div class="modal-footer">
+                        <a class="btn btn-warning text-white" id="stuProfileBtn">Student Profile</a>
+
                         <input name="Save" type="submit" value="Save" id="savingbutton" class="btn btn-primary"
                             onclick="this.value='Saving...';">
                     </div>
@@ -509,6 +536,18 @@
 
         //ajax request for get the data 
       $(document).ready(function() {
+
+        function setPercentage(className, percentage) {
+            // Set the percentage in the <a> tag
+            $('.' + className + ' a.text-primary').eq(0).text(percentage + '%');
+
+            // Set the percentage in the data-percentage attribute
+            $('.' + className + ' .circlechart').attr('data-percentage', percentage);
+
+        }
+
+
+
           $('.studentInfo').on('click', function(e) {
               e.preventDefault();
 
@@ -530,7 +569,7 @@
                             $('#stu_city').empty();
                             $('#stu_country').empty();
                             $('#stu_passport').empty();
-                            
+                            $('#stuProfileBtn').attr('href','');  
 
                             //student info section 
                             $('#studentId').val(response.student.id);
@@ -554,10 +593,26 @@
                             }
 
                             if( response.student.photo !== ''){
-
-                            var imageUrl = "{{ asset('uploads') }}/" + response.student.photo;
-                            $('#stu_photo').attr('src', imageUrl);
+                              var imageUrl = "{{ asset('uploads') }}/" + response.student.photo;
+                              $('#stu_photo').attr('src', imageUrl);
                             }
+
+                            
+                            var ProfileUrl = "{{ route('view.stu', ['id' => ':id']) }}"; // Define the route with a placeholder for the ID
+                            ProfileUrl = ProfileUrl.replace(':id', response.student.id); // Replace the placeholder with the actual ID
+                            $('#stuProfileBtn').attr('href', ProfileUrl);
+
+                            // Set the percentage values dynamically for each section
+                            // setPercentage('processingStatus', processingPercentage);
+                            // setPercentage('emgsStatus', emgsPercentage);
+                            // setPercentage('paymentStatus', paymentPercentage);
+
+                            // alert("Setting percentage for processingStatus to 25");
+                            // setPercentage('processingStatus', 25);
+                            // console.log("Setting percentage for emgsStatus to 50");
+                            // setPercentage('emgsStatus', 50);
+                            // console.log("Setting percentage for paymentStatus to 75");
+                            // setPercentage('paymentStatus', 75);
                    
                             // $('#name').val(response.name);
                             $('#myModal2').modal('show');
@@ -576,6 +631,10 @@
           });
       });
       //end the ajax request
+
+      $(function(){
+         $('.circlechart').circlechart();
+      });
     </script>
 
 
